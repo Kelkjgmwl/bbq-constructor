@@ -1,11 +1,29 @@
 import React, { useState } from "react";
 
 const modules = [
+  { id: "mangal550", name: "Мангал 550", width: 570 },
+  { id: "mangal700", name: "Мангал 700", width: 720 },
+  { id: "mangal900", name: "Мангал 900", width: 920 },
   { id: "mangal1000", name: "Мангал 1000", width: 1020 },
+  { id: "pech480", name: "Печь 480", width: 500 },
+  { id: "pech680", name: "Печь 680", width: 700 },
+  { id: "pech1000", name: "Печь 1000", width: 1020 },
+  { id: "koktal600", name: "Коктал 600", width: 620 },
+  { id: "koktal700", name: "Коктал 700", width: 720 },
+  { id: "koktal800", name: "Коктал 800", width: 820 },
+  { id: "koktal900", name: "Коктал 900", width: 920 },
+  { id: "koktal1000", name: "Коктал 1000", width: 1020 },
   { id: "sink", name: "Мойка", width: 520 },
-  { id: "kazan", name: "Казан", width: 700 },
-  { id: "koktal", name: "Коктал", width: 1020 },
+  { id: "gas", name: "Газ 2-конф.", width: 520 },
+  { id: "table400", name: "Стол 400", width: 420 },
+  { id: "table600", name: "Стол 600", width: 620 },
+  { id: "table800", name: "Стол 800", width: 820 },
+  { id: "table1000", name: "Стол 1000", width: 1020 },
+  { id: "table1200", name: "Стол 1200", width: 1220 },
+  { id: "table1500", name: "Стол 1500", width: 1520 },
+  { id: "table2000", name: "Стол 2000", width: 2020 },
 ];
+
 
 const TUBE_WIDTH = 40;
 
