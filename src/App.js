@@ -3,7 +3,6 @@ import React, { useState } from "react";
 const modules = [
   { id: "mangal550", name: "Мангал 550", width: 570 },
   { id: "mangal700", name: "Мангал 700", width: 720 },
-  { id: "mangal900", name: "Мангал 900", width: 920 },
   { id: "mangal1000", name: "Мангал 1000", width: 1020 },
   { id: "pech480", name: "Печь 480", width: 500 },
   { id: "pech680", name: "Печь 680", width: 700 },
