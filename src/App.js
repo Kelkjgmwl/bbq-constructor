@@ -90,18 +90,21 @@ export default function BBQConstructor() {
         className="overflow-x-auto border p-6 bg-gray-50 rounded-xl shadow-inner"
         style={{ transform: `scale(${scale})`, transformOrigin: "left top" }}
       >
-        <div className="flex items-end gap-0">
+        <div className="flex flex-row items-end gap-0">
           {selected.map((mod, index) => (
-            <div key={index} className="relative">
+            <div
+              key={index}
+              className="relative flex-shrink-0"
+              style={{ marginLeft: index > 0 ? "-30px" : "0px" }}
+            >
               {index > 0 && (
                 <div
-                  style={{ width: 30 }}
-                  className="flex justify-center items-center bg-gray-400 text-[10px] text-white h-full px-1"
+                  className="absolute left-0 top-0 h-full bg-gray-400 text-[10px] text-white w-[30px] z-0 flex justify-center items-center"
                 >
                   Труба
                 </div>
               )}
-              <div className="w-[160px] flex flex-col items-center text-xs">
+              <div className="relative z-10 w-[160px] h-[170px] flex flex-col items-center text-xs">
                 <img
                   src={`modules/${mod.id}.png`}
                   alt={mod.name}
