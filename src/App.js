@@ -1,27 +1,40 @@
 import { useState } from "react";
 
+// Общий коэффициент масштаба и перекрытия (меняется вручную)
+const scale = 0.4;
+const overlap = 40 * scale;
+
 const modules = [
+  // Мангалы
+  { id: "mangal_550", name: "Мангал 550", width: 570 },
   { id: "mangal_700", name: "Мангал 700", width: 720 },
-  { id: "pech_480", name: "Печь под казан", width: 500 },
+  { id: "mangal_1000", name: "Мангал 1000", width: 1020 },
+
+  // Печи
+  { id: "pech_480", name: "Печь 480", width: 500 },
+  { id: "pech_680", name: "Печь 680", width: 700 },
+  { id: "pech_1000", name: "Печь 1000", width: 1020 },
+
+  // Кокталы
   { id: "koktal_600", name: "Коктал 600", width: 620 },
-  { id: "gas_2burner_500", name: "Газ 500", width: 520 },
+  { id: "koktal_800", name: "Коктал 800", width: 820 },
+  { id: "koktal_1000", name: "Коктал 1000", width: 1020 },
+
+  // Столешницы
+  { id: "table_600", name: "Стол 600", width: 620 },
   { id: "table_800", name: "Стол 800", width: 820 },
   { id: "table_1000", name: "Стол 1000", width: 1020 },
-];
+  { id: "table_1200", name: "Стол 1200", width: 1220 },
+  { id: "table_1500", name: "Стол 1500", width: 1520 },
+  { id: "table_2000", name: "Стол 2000", width: 2020 },
 
-// 👇 Словарь индивидуальных перекрытий (в пикселях)
-const overlapMap = {
-  pech_480: 40,
-  koktal_600: 40,
-  gas_2burner_500: 48,
-  table_800: 44,
-  table_1000: 40,
-  // добавляй сюда новые модули по мере необходимости
-};
+  // Газ и мойка
+  { id: "gas_2burner_500", name: "Газ 500", width: 520 },
+  { id: "sink_500", name: "Мойка 500", width: 520 },
+];
 
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
-  const scale = 0.4; // 👈 Меняешь это значение для масштаба всех блоков
 
   const addModule = (mod) => setSelected([...selected, mod]);
   const reset = () => setSelected([]);
@@ -89,7 +102,7 @@ export default function BBQConstructor() {
             <div
               key={index}
               style={{
-                marginLeft: index > 0 ? `-${(overlapMap[mod.id] || 40) * scale}px` : '0px', // 👈 Используем словарь отступов
+                marginLeft: index > 0 ? `-${overlap}px` : '0px',
                 zIndex: index,
                 height: '500px',
                 width: `${mod.width * scale}px`,
