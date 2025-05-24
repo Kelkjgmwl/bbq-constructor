@@ -61,13 +61,14 @@ export default function BBQConstructor() {
       <div
         style={{
           overflowX: 'auto',
-          background: '#f3f3f3',
           padding: '16px',
           borderRadius: '8px',
           border: '1px solid #ccc',
+          background: '#fff', // общий задний фон
+          position: 'relative',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', position: 'relative' }}>
           {selected.map((mod, index) => (
             <div
               key={index}
@@ -78,7 +79,6 @@ export default function BBQConstructor() {
                 width: '160px',
                 height: '170px',
                 flexShrink: 0,
-                background: '#fff',
               }}
             >
               <img
