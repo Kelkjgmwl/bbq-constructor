@@ -9,9 +9,19 @@ const modules = [
   { id: "table_1000", name: "Стол 1000", width: 1020 },
 ];
 
+// 👇 Словарь индивидуальных перекрытий (в пикселях)
+const overlapMap = {
+  pech_480: 40,
+  koktal_600: 40,
+  gas_2burner_500: 48,
+  table_800: 48,
+  table_1000: 40,
+  // добавляй сюда новые модули по мере необходимости
+};
+
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
-  const scale = 0.4; // 👈 Меняешь это значение для масштаба и перекрытия
+  const scale = 0.4; // 👈 Меняешь это значение для масштаба всех блоков
 
   const addModule = (mod) => setSelected([...selected, mod]);
   const reset = () => setSelected([]);
@@ -79,10 +89,10 @@ export default function BBQConstructor() {
             <div
               key={index}
               style={{
-                marginLeft: index > 0 ? `${-40 * scale}px` : '0px', // 👈 регулируем перекрытие
+                marginLeft: index > 0 ? `-${(overlapMap[mod.id] || 40) * scale}px` : '0px', // 👈 Используем словарь отступов
                 zIndex: index,
                 height: '500px',
-                width: `${mod.width * scale}px`, // 👈 регулируем ширину в масштабе
+                width: `${mod.width * scale}px`,
                 position: 'relative',
                 flexShrink: 0,
                 display: 'flex',
