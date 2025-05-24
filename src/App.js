@@ -1,36 +1,68 @@
 export default function BBQConstructor() {
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Тестовая линия модулей</h1>
+    <div style={{ padding: '24px', fontFamily: 'sans-serif' }}>
+      <h1 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
+        Тестовая линия модулей (CSS)
+      </h1>
 
-      <div className="overflow-x-auto bg-gray-100 p-4 rounded border">
-        <div className="flex flex-row items-end space-x-0">
+      <div
+        style={{
+          overflowX: 'auto',
+          background: '#f3f3f3',
+          padding: '16px',
+          borderRadius: '8px',
+          border: '1px solid #ccc',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
 
           {/* Первый модуль */}
-          <div className="relative w-40 h-44 flex-shrink-0">
+          <div style={{ width: '160px', height: '170px', marginRight: '0px', flexShrink: 0 }}>
             <img
               src="modules/mangal_700.png"
-              className="w-full h-36 object-contain"
+              style={{ width: '100%', height: '140px', objectFit: 'contain' }}
               alt="Мангал 700"
             />
-            <div className="text-center text-sm mt-1">Мангал 700</div>
+            <div style={{ textAlign: 'center', fontSize: '14px', marginTop: '4px' }}>Мангал 700</div>
           </div>
 
           {/* Труба */}
-          <div className="w-8 bg-gray-400 text-white flex items-center justify-center text-xs h-36 flex-shrink-0">
+          <div
+            style={{
+              width: '30px',
+              background: '#999',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '10px',
+              height: '140px',
+              flexShrink: 0,
+              zIndex: 0,
+            }}
+          >
             Труба
           </div>
 
-          {/* Второй модуль */}
-          <div className="relative -ml-8 w-40 h-44 flex-shrink-0 z-10">
+          {/* Второй модуль, перекрывающий трубу */}
+          <div
+            style={{
+              width: '160px',
+              height: '170px',
+              marginLeft: '-30px',
+              zIndex: 1,
+              position: 'relative',
+              background: 'white',
+              flexShrink: 0,
+            }}
+          >
             <img
               src="modules/koktal_800.png"
-              className="w-full h-36 object-contain"
+              style={{ width: '100%', height: '140px', objectFit: 'contain' }}
               alt="Коктал 800"
             />
-            <div className="text-center text-sm mt-1">Коктал 800</div>
+            <div style={{ textAlign: 'center', fontSize: '14px', marginTop: '4px' }}>Коктал 800</div>
           </div>
-
         </div>
       </div>
     </div>
