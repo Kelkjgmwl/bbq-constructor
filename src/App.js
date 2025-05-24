@@ -16,7 +16,7 @@ export default function BBQConstructor() {
   const reset = () => setSelected([]);
 
   const totalLength = selected.reduce(
-    (sum, m, i) => sum + m.width + (i > 0 ? -40 : 0), // <-- Значение -40 регулирует перекрытие труб
+    (sum, m, i) => sum + m.width + (i > 0 ? -30 : 0), // <-- Значение -40 регулирует перекрытие труб
     0
   );
   const pricePerMeter = 235000;
