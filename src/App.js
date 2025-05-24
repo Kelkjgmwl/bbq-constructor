@@ -65,17 +65,18 @@ export default function BBQConstructor() {
           overflowX: 'auto',
           padding: '24px',
           borderRadius: '16px',
-          background: '#f5f5f5',
-          border: '1px solid #ddd'
+          background: '#ffffff',
+          border: '1px solid #ddd',
+          position: 'relative',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', position: 'relative' }}>
           {selected.map((mod, index) => (
             <div
               key={index}
               style={{
                 marginLeft: index > 0 ? '-40px' : '0px',
-                zIndex: 10 + index,
+                zIndex: index,
                 width: '200px',
                 height: 'auto',
                 position: 'relative',
@@ -88,7 +89,12 @@ export default function BBQConstructor() {
               <img
                 src={`modules/${mod.id}.png`}
                 alt={mod.name}
-                style={{ width: '100%', objectFit: 'contain', background: 'transparent' }}
+                style={{
+                  width: '100%',
+                  objectFit: 'contain',
+                  background: 'transparent',
+                  position: 'relative'
+                }}
               />
               <div style={{ textAlign: 'center', fontSize: '20px', fontWeight: '500', marginTop: '8px' }}>{mod.name}</div>
             </div>
