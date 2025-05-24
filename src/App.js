@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const modules = [
   { id: "mangal_550", name: "Мангал 550", width: 580 },
@@ -22,36 +22,20 @@ const modules = [
 
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
-  const [scale, setScale] = useState(0.4);
   const [hasRoof, setHasRoof] = useState(false);
   const [hasApron, setHasApron] = useState(false);
   const [hoodLength, setHoodLength] = useState("");
+
+  const scale = 0.4;
 
   const addModule = (mod) => setSelected([...selected, mod]);
   const removeModule = (i) => setSelected(selected.filter((_, index) => index !== i));
   const reset = () => setSelected([]);
 
-  useEffect(() => {
-    if (selected.length === 0) {
-      setScale(0.4);
-      return;
-    }
-
-    const totalWidth = selected.reduce(
-      (sum, m, i) => sum + m.width + (i > 0 ? -40 : 0),
-      0
-    );
-
-    const availableWidth = window.innerWidth - 100;
-    let newScale = availableWidth / totalWidth;
-
-    if (newScale > 0.6) newScale = 0.6;
-    if (newScale < 0.3) newScale = 0.3;
-
-    setScale(newScale);
-  }, [selected]);
-
-  const totalLength = selected.reduce((sum, m, i) => sum + m.width + (i > 0 ? -40 : 0), 0);
+  const totalLength = selected.reduce(
+    (sum, m, i) => sum + m.width + (i > 0 ? -40 : 0),
+    0
+  );
   const basePrice = (totalLength / 1000) * 235000;
   const roofPrice = hasRoof ? 300000 : 0;
   const apronPrice = hasApron ? 150000 : 0;
@@ -92,7 +76,7 @@ export default function BBQConstructor() {
               style={{
                 marginLeft: index > 0 ? `${-40 * scale}px` : "0px",
                 zIndex: index,
-                height: `${500 * scale}px`,
+                height: "500px",
                 width: `${mod.width * scale}px`,
                 position: "relative",
                 flexShrink: 0,
