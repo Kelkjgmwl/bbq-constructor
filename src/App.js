@@ -56,15 +56,18 @@ export default function BBQConstructor() {
         Конфигуратор комплекса
       </h1>
 
-      {/* Визуализация */}
+      {/* Визуализация — растягиваемая область */}
       <div
         style={{
-          overflowX: "auto",
+          resize: "both",
+          overflow: "auto",
           padding: "16px",
           borderRadius: "16px",
           background: "#f7f7f7",
           border: "1px solid #ddd",
           marginBottom: "12px",
+          minWidth: "300px",
+          minHeight: "300px",
           maxWidth: "100%",
           boxSizing: "border-box",
         }}
@@ -77,7 +80,7 @@ export default function BBQConstructor() {
                 marginLeft: index > 0 ? `${-40 * scale}px` : "0px",
                 zIndex: index,
                 width: `${mod.width * scale}px`,
-                height: "500px", // ← фиксированная высота вернулась!
+                height: "500px",
                 position: "relative",
                 flexShrink: 0,
                 display: "flex",
@@ -127,7 +130,7 @@ export default function BBQConstructor() {
         </div>
       </div>
 
-      {/* Кнопки по категориям */}
+      {/* Кнопки */}
       <div
         style={{
           display: "flex",
