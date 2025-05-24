@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 
 const modules = [
   { id: "mangal_550", name: "Мангал 550", width: 580 },
-  { id: "pech_480", name: "Печь 480", width: 500 },
   { id: "mangal_700", name: "Мангал 700", width: 720 },
   { id: "mangal_1000", name: "Мангал 1000", width: 1020 },
+  { id: "pech_480", name: "Печь 480", width: 500 },
   { id: "pech_680", name: "Печь 680", width: 700 },
   { id: "pech_1000", name: "Печь 1000", width: 1020 },
   { id: "koktal_600", name: "Коктал 600", width: 620 },
@@ -27,18 +27,31 @@ export default function BBQConstructor() {
   const [hoodLength, setHoodLength] = useState("");
   const [scale, setScale] = useState(1);
 
+  const baseScale = 0.4;
   const containerRef = useRef(null);
 
   const addModule = (mod) => setSelected([...selected, mod]);
   const removeModule = (i) => setSelected(selected.filter((_, index) => index !== i));
   const reset = () => setSelected([]);
 
-  const baseScale = 0.4;
-
   const totalLength = selected.reduce(
     (sum, m, i) => sum + m.width + (i > 0 ? -40 : 0),
     0
   );
+
+  useEffect(() => {
+    if (!containerRef.current || selected.length === 0) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      const containerWidth = entries[0].contentRect.width;
+      const neededWidth = totalLength * baseScale;
+      const newScale = Math.min(1, Math.max(0.25, containerWidth / neededWidth));
+      setScale(newScale);
+    });
+
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, [selected, totalLength]);
 
   const categorized = {
     Мангалы: modules.filter((m) => m.id.includes("mangal")),
@@ -54,39 +67,23 @@ export default function BBQConstructor() {
   const hoodPrice = (parseInt(hoodLength) || 0) / 1000 * 150000;
   const totalPrice = Math.round(basePrice + roofPrice + apronPrice + hoodPrice);
 
-  useEffect(() => {
-    if (!containerRef.current || selected.length === 0) return;
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      const containerWidth = entries[0].contentRect.width;
-      const neededWidth = totalLength * baseScale;
-      const newScale = Math.min(1, containerWidth / neededWidth);
-      setScale(newScale);
-    });
-
-    resizeObserver.observe(containerRef.current);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [selected, totalLength]);
-
   return (
-    <div style={{ padding: "24px", fontFamily: "sans-serif" }}>
-      <h1 style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "24px" }}>
+    <div style={{ padding: 24, fontFamily: "sans-serif", maxWidth: "100vw", overflowX: "hidden" }}>
+      <h1 style={{ fontSize: 28, fontWeight: "bold", marginBottom: 24 }}>
         Конфигуратор комплекса
       </h1>
 
+      {/* Область визуализации */}
       <div
         ref={containerRef}
         style={{
           resize: "both",
           overflow: "auto",
-          padding: "16px",
-          borderRadius: "16px",
+          padding: 16,
+          borderRadius: 16,
           background: "#f7f7f7",
           border: "1px solid #ddd",
-          marginBottom: "12px",
+          marginBottom: 12,
           minWidth: "300px",
           minHeight: "300px",
           maxWidth: "100%",
@@ -99,7 +96,7 @@ export default function BBQConstructor() {
             transformOrigin: "left bottom",
             display: "flex",
             alignItems: "flex-end",
-            height: `${500}px`,
+            height: "500px",
           }}
         >
           {selected.map((mod, index) => (
@@ -109,7 +106,7 @@ export default function BBQConstructor() {
                 marginLeft: index > 0 ? `${-40 * baseScale}px` : "0px",
                 zIndex: index,
                 width: `${mod.width * baseScale}px`,
-                height: `${500}px`,
+                height: "500px",
                 position: "relative",
                 flexShrink: 0,
                 display: "flex",
@@ -126,21 +123,21 @@ export default function BBQConstructor() {
                 onClick={() => removeModule(index)}
                 style={{
                   position: "absolute",
-                  top: "4px",
-                  right: "4px",
+                  top: 4,
+                  right: 4,
                   background: "red",
                   color: "white",
                   border: "none",
                   borderRadius: "50%",
-                  width: "24px",
-                  height: "24px",
-                  fontSize: "14px",
+                  width: 24,
+                  height: 24,
+                  fontSize: 14,
                   cursor: "pointer",
                 }}
               >
                 ✕
               </button>
-              <div style={{ textAlign: "center", fontSize: "16px", fontWeight: "500", marginTop: "8px" }}>
+              <div style={{ textAlign: "center", fontSize: 16, fontWeight: 500, marginTop: 8 }}>
                 {mod.name}
               </div>
             </div>
@@ -148,9 +145,10 @@ export default function BBQConstructor() {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: "40px", flexWrap: "wrap", marginBottom: "24px" }}>
+      {/* Кнопки */}
+      <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", marginBottom: "24px" }}>
         {Object.entries(categorized).map(([group, mods]) => (
-          <div key={group} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div key={group} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {mods.map((mod) => (
               <button
                 key={mod.id}
@@ -162,7 +160,8 @@ export default function BBQConstructor() {
                   border: "2px solid #ccc",
                   cursor: "pointer",
                   fontSize: "14px",
-                  minWidth: "110px",
+                  width: "100%",
+                  maxWidth: "120px",
                 }}
               >
                 {mod.name}
@@ -182,7 +181,8 @@ export default function BBQConstructor() {
               fontWeight: "600",
               fontSize: "16px",
               cursor: "pointer",
-              marginTop: "4px",
+              width: "100%",
+              maxWidth: "120px",
             }}
           >
             Сбросить всё
@@ -190,17 +190,18 @@ export default function BBQConstructor() {
         </div>
       </div>
 
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "20px", marginTop: "24px" }}>
+      {/* Доп. опции */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginTop: 24 }}>
         <label>
           <input type="checkbox" checked={hasRoof} onChange={(e) => setHasRoof(e.target.checked)} />
-          <span style={{ marginLeft: "8px", fontWeight: "bold" }}>навес</span>
+          <span style={{ marginLeft: 8, fontWeight: "bold" }}>навес</span>
         </label>
         <label>
           <input type="checkbox" checked={hasApron} onChange={(e) => setHasApron(e.target.checked)} />
-          <span style={{ marginLeft: "8px", fontWeight: "bold" }}>фартук</span>
+          <span style={{ marginLeft: 8, fontWeight: "bold" }}>фартук</span>
         </label>
         <label>
-          <span style={{ fontWeight: "bold", marginRight: "8px" }}>длинна вытяжного зонта</span>
+          <span style={{ fontWeight: "bold", marginRight: 8 }}>длинна вытяжного зонта</span>
           <input
             type="number"
             placeholder="мм"
@@ -211,7 +212,8 @@ export default function BBQConstructor() {
         </label>
       </div>
 
-      <div style={{ marginTop: "32px", fontWeight: "bold", fontSize: "20px" }}>
+      {/* Итог */}
+      <div style={{ marginTop: 32, fontWeight: "bold", fontSize: 20 }}>
         Общая длина: {totalLength} мм<br />
         Стоимость комплекса: {totalPrice.toLocaleString()} ₸
       </div>
