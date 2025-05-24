@@ -9,6 +9,8 @@ const modules = [
   { id: "table_1000", name: "Стол 1000", width: 1020 },
 ];
 
+const OVERLAP_PX = 40; // ← Регулируй перекрытие модулей (чем больше, тем больше нахлёст)
+
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
 
@@ -16,7 +18,7 @@ export default function BBQConstructor() {
   const reset = () => setSelected([]);
 
   const totalLength = selected.reduce(
-    (sum, m, i) => sum + m.width + (i > 0 ? -30 : 0), // <-- Значение -40 регулирует перекрытие труб
+    (sum, m, i) => sum + m.width + (i > 0 ? -OVERLAP_PX : 0),
     0
   );
   const pricePerMeter = 235000;
@@ -70,22 +72,24 @@ export default function BBQConstructor() {
           borderRadius: '16px',
           background: '#f6f6f6',
           border: '1px solid #ddd',
-          position: 'relative',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-end', position: 'relative' }}> {/* выравнивание по нижнему краю */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'flex-end', // 👈 Выровнять по нижнему краю
+          position: 'relative',
+        }}>
           {selected.map((mod, index) => (
             <div
               key={index}
               style={{
-                marginLeft: index > 0 ? '-40px' : '0px', // <-- значение -40: регулировка перекрытия
+                marginLeft: index > 0 ? `-${OVERLAP_PX}px` : '0px',
                 zIndex: index,
                 width: '200px',
-                position: 'relative',
                 flexShrink: 0,
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center'
+                alignItems: 'center',
               }}
             >
               <img
@@ -94,10 +98,11 @@ export default function BBQConstructor() {
                 style={{
                   width: '100%',
                   objectFit: 'contain',
-                  background: 'transparent',
                 }}
               />
-              <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: '500', marginTop: '8px' }}>{mod.name}</div>
+              <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: '500', marginTop: '8px' }}>
+                {mod.name}
+              </div>
             </div>
           ))}
         </div>
