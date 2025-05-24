@@ -56,7 +56,7 @@ export default function BBQConstructor() {
         Конфигуратор комплекса
       </h1>
 
-      {/* Визуализация */}
+      {/* Визуализация — адаптивная высота */}
       <div
         style={{
           overflowX: "auto",
@@ -69,15 +69,15 @@ export default function BBQConstructor() {
           boxSizing: "border-box",
         }}
       >
-        <div style={{ display: "flex", alignItems: "flex-end" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", height: "auto" }}>
           {selected.map((mod, index) => (
             <div
               key={index}
               style={{
                 marginLeft: index > 0 ? `${-40 * scale}px` : "0px",
                 zIndex: index,
-                height: "500px",
                 width: `${mod.width * scale}px`,
+                height: `${500 * scale}px`,
                 position: "relative",
                 flexShrink: 0,
                 display: "flex",
