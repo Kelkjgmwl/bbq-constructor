@@ -1,30 +1,21 @@
 import { useState } from "react";
 
 const modules = [
-  // Мангалы
   { id: "mangal_550", name: "Мангал 550", width: 580 },
   { id: "mangal_700", name: "Мангал 700", width: 720 },
   { id: "mangal_1000", name: "Мангал 1000", width: 1020 },
-
-  // Печи
   { id: "pech_480", name: "Печь 480", width: 500 },
   { id: "pech_680", name: "Печь 680", width: 700 },
   { id: "pech_1000", name: "Печь 1000", width: 1020 },
-
-  // Кокталы
   { id: "koktal_600", name: "Коктал 600", width: 620 },
   { id: "koktal_800", name: "Коктал 800", width: 820 },
   { id: "koktal_1000", name: "Коктал 1000", width: 1020 },
-
-  // Столы
   { id: "table_600", name: "Стол 600", width: 620 },
   { id: "table_800", name: "Стол 800", width: 820 },
   { id: "table_1000", name: "Стол 1000", width: 1020 },
   { id: "table_1200", name: "Стол 1200", width: 1220 },
   { id: "table_1500", name: "Стол 1500", width: 1520 },
   { id: "table_2000", name: "Стол 2000", width: 2020 },
-
-  // Прочее
   { id: "gas_2burner_500", name: "Газ 500", width: 520 },
   { id: "sink_500", name: "Мойка 500", width: 520 },
 ];
@@ -34,6 +25,9 @@ export default function BBQConstructor() {
   const scale = 0.4;
 
   const addModule = (mod) => setSelected([...selected, mod]);
+  const removeModule = (indexToRemove) => {
+    setSelected(selected.filter((_, i) => i !== indexToRemove));
+  };
   const reset = () => setSelected([]);
 
   const totalLength = selected.reduce(
@@ -57,7 +51,7 @@ export default function BBQConstructor() {
         Конфигуратор комплекса
       </h1>
 
-      {/* Визуализация – СНАЧАЛА */}
+      {/* Визуализация */}
       <div
         style={{
           overflowX: 'auto',
@@ -93,9 +87,26 @@ export default function BBQConstructor() {
                   height: '100%',
                   objectFit: 'contain',
                   background: 'transparent',
-                  position: 'relative',
                 }}
               />
+              <button
+                onClick={() => removeModule(index)}
+                style={{
+                  position: 'absolute',
+                  top: '4px',
+                  right: '4px',
+                  background: 'red',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '24px',
+                  height: '24px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                }}
+              >
+                ✕
+              </button>
               <div style={{ textAlign: 'center', fontSize: '16px', fontWeight: '500', marginTop: '8px' }}>
                 {mod.name}
               </div>
@@ -104,8 +115,15 @@ export default function BBQConstructor() {
         </div>
       </div>
 
-      {/* Кнопки – ПОСЛЕ визуализации */}
-      <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', marginBottom: '24px' }}>
+      {/* Кнопки */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+          gap: '20px',
+          marginBottom: '24px',
+        }}
+      >
         {Object.entries(categorized).map(([group, mods]) => (
           <div key={group} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {mods.map((mod) => (
@@ -126,6 +144,7 @@ export default function BBQConstructor() {
             ))}
           </div>
         ))}
+
         <div>
           <button
             onClick={reset}
@@ -141,7 +160,7 @@ export default function BBQConstructor() {
               marginTop: '4px'
             }}
           >
-            Сбросить
+            Сбросить всё
           </button>
         </div>
       </div>
