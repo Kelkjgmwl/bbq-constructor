@@ -31,7 +31,7 @@ const modules = [
 
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
-  const scale = 0.4; // 👈 Масштаб изображений и перекрытия
+  const scale = 0.4;
 
   const addModule = (mod) => setSelected([...selected, mod]);
   const reset = () => setSelected([]);
@@ -57,6 +57,54 @@ export default function BBQConstructor() {
         Конфигуратор комплекса
       </h1>
 
+      {/* Визуализация – СНАЧАЛА */}
+      <div
+        style={{
+          overflowX: 'auto',
+          padding: '24px',
+          borderRadius: '16px',
+          background: '#f7f7f7',
+          border: '1px solid #ddd',
+          position: 'relative',
+          marginBottom: '24px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-end', position: 'relative' }}>
+          {selected.map((mod, index) => (
+            <div
+              key={index}
+              style={{
+                marginLeft: index > 0 ? `${-40 * scale}px` : '0px',
+                zIndex: index,
+                height: '500px',
+                width: `${mod.width * scale}px`,
+                position: 'relative',
+                flexShrink: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              <img
+                src={`modules/${mod.id}.png`}
+                alt={mod.name}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  background: 'transparent',
+                  position: 'relative',
+                }}
+              />
+              <div style={{ textAlign: 'center', fontSize: '16px', fontWeight: '500', marginTop: '8px' }}>
+                {mod.name}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Кнопки – ПОСЛЕ визуализации */}
       <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', marginBottom: '24px' }}>
         {Object.entries(categorized).map(([group, mods]) => (
           <div key={group} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -95,51 +143,6 @@ export default function BBQConstructor() {
           >
             Сбросить
           </button>
-        </div>
-      </div>
-
-      <div
-        style={{
-          overflowX: 'auto',
-          padding: '24px',
-          borderRadius: '16px',
-          background: '#f7f7f7',
-          border: '1px solid #ddd',
-          position: 'relative',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'flex-end', position: 'relative' }}>
-          {selected.map((mod, index) => (
-            <div
-              key={index}
-              style={{
-                marginLeft: index > 0 ? `${-40 * scale}px` : '0px',
-                zIndex: index,
-                height: '500px',
-                width: `${mod.width * scale}px`,
-                position: 'relative',
-                flexShrink: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-            >
-              <img
-                src={`modules/${mod.id}.png`}
-                alt={mod.name}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                  background: 'transparent',
-                  position: 'relative',
-                }}
-              />
-              <div style={{ textAlign: 'center', fontSize: '16px', fontWeight: '500', marginTop: '8px' }}>
-                {mod.name}
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 
