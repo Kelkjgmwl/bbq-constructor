@@ -15,10 +15,8 @@ export default function BBQConstructor() {
   const addModule = (mod) => setSelected([...selected, mod]);
   const reset = () => setSelected([]);
 
-  const overlapPixels = 30; // <-- Измените это значение для регулировки перекрытия модулей
-
   const totalLength = selected.reduce(
-    (sum, m, i) => sum + m.width + (i > 0 ? -overlapPixels : 0),
+    (sum, m, i) => sum + m.width + (i > 0 ? -40 : 0), // <-- Значение -40 регулирует перекрытие труб
     0
   );
   const pricePerMeter = 235000;
@@ -75,12 +73,12 @@ export default function BBQConstructor() {
           position: 'relative',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-end', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', position: 'relative' }}> {/* выравнивание по нижнему краю */}
           {selected.map((mod, index) => (
             <div
               key={index}
               style={{
-                marginLeft: index > 0 ? `-${overlapPixels}px` : '0px', // <-- регулируемое перекрытие
+                marginLeft: index > 0 ? '-40px' : '0px', // <-- значение -40: регулировка перекрытия
                 zIndex: index,
                 width: '200px',
                 position: 'relative',
