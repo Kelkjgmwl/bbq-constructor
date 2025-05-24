@@ -78,6 +78,7 @@ export default function BBQConstructor() {
           display: 'flex',
           alignItems: 'flex-end', // 👈 Выровнять по нижнему краю
           position: 'relative',
+          height: '360px' // 👈 Жестко заданная высота контейнера, чтобы все изображения были одинаковой высоты
         }}>
           {selected.map((mod, index) => (
             <div
@@ -96,7 +97,8 @@ export default function BBQConstructor() {
                 src={`modules/${mod.id}.png`}
                 alt={mod.name}
                 style={{
-                  width: '100%',
+                  height: '100%',
+                  width: 'auto',
                   objectFit: 'contain',
                 }}
               />
