@@ -11,7 +11,7 @@ const modules = [
 
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
-  const scale = 0.5; // 👈 Меняешь это значение для масштаба и перекрытия
+  const scale = 0.6; // 👈 Меняешь это значение для масштаба и перекрытия
 
   const addModule = (mod) => setSelected([...selected, mod]);
   const reset = () => setSelected([]);
