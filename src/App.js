@@ -76,8 +76,8 @@ export default function BBQConstructor() {
               style={{
                 marginLeft: index > 0 ? `${-40 * scale}px` : "0px",
                 zIndex: index,
-                height: "500px",
                 width: `${mod.width * scale}px`,
+                height: "500px", // ← фиксированная высота вернулась!
                 position: "relative",
                 flexShrink: 0,
                 display: "flex",
