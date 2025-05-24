@@ -11,6 +11,7 @@ const modules = [
 
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
+  const scale = 0.5; // 👈 Меняешь это значение для масштаба и перекрытия
 
   const addModule = (mod) => setSelected([...selected, mod]);
   const reset = () => setSelected([]);
@@ -78,10 +79,10 @@ export default function BBQConstructor() {
             <div
               key={index}
               style={{
-                marginLeft: index > 0 ? '-60px' : '0px',
+                marginLeft: index > 0 ? `${-40 * scale}px` : '0px', // 👈 регулируем перекрытие
                 zIndex: index,
                 height: '500px',
-                width: `${(mod.width / 2)}px`, // масштабируем ширину
+                width: `${mod.width * scale}px`, // 👈 регулируем ширину в масштабе
                 position: 'relative',
                 flexShrink: 0,
                 display: 'flex',
