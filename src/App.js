@@ -1,11 +1,4 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 
 const categories = {
   Мангал: [
@@ -41,49 +34,47 @@ export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
   const [scale, setScale] = useState(1);
 
-  const addModule = (mod) => {
-    setSelected([...selected, mod]);
-  };
-
+  const addModule = (mod) => setSelected([...selected, mod]);
   const reset = () => setSelected([]);
 
   const totalLength = selected.reduce(
     (sum, m, i) => sum + m.width + (i > 0 ? -40 : 0),
     0
   );
-
-  const pricePerMeter = 235000; // тенге за 1 метр
+  const pricePerMeter = 235000;
   const priceTotal = (totalLength / 1000) * pricePerMeter;
 
   return (
-    <div className="p-4 space-y-6 max-w-screen overflow-x-auto">
+    <div className="p-4 space-y-6">
       <div className="flex flex-wrap gap-4">
         {Object.entries(categories).map(([group, mods]) => (
-          <DropdownMenu key={group}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">{group}</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
+          <div className="relative group" key={group}>
+            <button className="px-4 py-2 border rounded shadow bg-white hover:bg-gray-100">
+              {group}
+            </button>
+            <div className="absolute hidden group-hover:block bg-white border rounded shadow mt-1 z-10">
               {mods.map((mod) => (
-                <DropdownMenuItem
+                <div
                   key={mod.id}
                   onClick={() => addModule(mod)}
-                  className="cursor-pointer"
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
                 >
                   {mod.name}
-                </DropdownMenuItem>
+                </div>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </div>
+          </div>
         ))}
-
-        <Button onClick={reset} className="bg-red-600 text-white">
+        <button
+          onClick={reset}
+          className="bg-red-600 text-white px-4 py-2 rounded shadow"
+        >
           Сбросить
-        </Button>
+        </button>
       </div>
 
       <div className="flex items-center gap-2">
-        <span>Масштаб:</span>
+        <label className="text-sm">Масштаб:</label>
         <input
           type="range"
           min="0.5"
