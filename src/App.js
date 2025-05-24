@@ -78,7 +78,7 @@ export default function BBQConstructor() {
             <div
               key={index}
               style={{
-                marginLeft: index > 0 ? '-40px' : '0px',
+                marginLeft: index > 0 ? '-60px' : '0px',
                 zIndex: index,
                 height: '500px',
                 width: `${(mod.width / 2)}px`, // масштабируем ширину
