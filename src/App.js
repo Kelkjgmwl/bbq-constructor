@@ -1,90 +1,85 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const modules = [
-  { id: "mangal550", name: "Мангал 550", width: 570 },
-  { id: "mangal700", name: "Мангал 700", width: 720 },
-  { id: "mangal1000", name: "Мангал 1000", width: 1020 },
-  { id: "pech480", name: "Печь 480", width: 500 },
-  { id: "pech680", name: "Печь 680", width: 700 },
-  { id: "pech1000", name: "Печь 1000", width: 1020 },
-  { id: "koktal600", name: "Коктал 600", width: 620 },
-  { id: "koktal700", name: "Коктал 700", width: 720 },
-  { id: "koktal800", name: "Коктал 800", width: 820 },
-  { id: "koktal900", name: "Коктал 900", width: 920 },
-  { id: "koktal1000", name: "Коктал 1000", width: 1020 },
-  { id: "sink", name: "Мойка", width: 500 },
-  { id: "gas", name: "Газ 2-конф.", width: 500 },
-  { id: "table400", name: "Стол 400", width: 400 },
-  { id: "table600", name: "Стол 600", width: 600 },
-  { id: "table800", name: "Стол 800", width: 800 },
-  { id: "table1000", name: "Стол 1000", width: 1000 },
-  { id: "table1200", name: "Стол 1200", width: 1200 },
-  { id: "table1500", name: "Стол 1500", width: 1500 },
-  { id: "table2000", name: "Стол 2000", width: 2000 },
+  { id: "mangal_550", name: "Мангал 550", width: 570 },
+  { id: "mangal_700", name: "Мангал 700", width: 720 },
+  { id: "mangal_1000", name: "Мангал 1000", width: 1020 },
+  { id: "pech_480", name: "Печь 480", width: 500 },
+  { id: "pech_680", name: "Печь 680", width: 700 },
+  { id: "pech_1000", name: "Печь 1000", width: 1020 },
+  { id: "koktal_600", name: "Коктал 600", width: 620 },
+  { id: "koktal_800", name: "Коктал 800", width: 820 },
+  { id: "koktal_1000", name: "Коктал 1000", width: 1020 },
+  { id: "sink_500", name: "Мойка", width: 520 },
+  { id: "gas_2burner_500", name: "Газ 500", width: 520 },
+  { id: "table_600", name: "Стол 600", width: 600 },
+  { id: "table_800", name: "Стол 800", width: 800 },
+  { id: "table_1000", name: "Стол 1000", width: 1000 },
+  { id: "table_1200", name: "Стол 1200", width: 1200 },
+  { id: "table_1500", name: "Стол 1500", width: 1500 },
+  { id: "table_2000", name: "Стол 2000", width: 2000 }
 ];
 
-
-const TUBE_WIDTH = 40;
-
 export default function BBQConstructor() {
-  const [selectedModules, setSelectedModules] = useState([]);
+  const [selected, setSelected] = useState([]);
 
-  const addModule = (mod) => setSelectedModules([...selectedModules, mod]);
-  const resetModules = () => setSelectedModules([]);
-
-  const totalWidth = () => {
-    if (selectedModules.length === 0) return 0;
-    const width = selectedModules.reduce((sum, m) => sum + m.width, 0);
-    const tubes = TUBE_WIDTH * (selectedModules.length);
-    return width + tubes;
+  const addModule = (mod) => {
+    setSelected([...selected, mod]);
   };
 
+  const reset = () => setSelected([]);
+
+  const totalLength = selected.reduce(
+    (sum, m, i) => sum + m.width + (i > 0 ? -40 : 0),
+    0
+  );
+
   return (
-    <div style={{ padding: 20 }}>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {modules.map((mod) => (
-          <button key={mod.id} onClick={() => addModule(mod)}>
-            {mod.name}
+    <div className="p-4 space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {modules.map((m) => (
+          <button
+            key={m.id}
+            onClick={() => addModule(m)}
+            className="border px-4 py-2 rounded hover:bg-gray-100"
+          >
+            {m.name}
           </button>
         ))}
-        <button onClick={resetModules} style={{ background: "red", color: "white" }}>
+        <button onClick={reset} className="bg-red-600 text-white px-4 py-2 rounded">
           Сбросить
         </button>
       </div>
 
-      <div style={{ marginTop: 20 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          {selectedModules.map((mod, i) => (
-            <React.Fragment key={i}>
-              <div style={{
-                width: 40,
-                height: 50,
-                background: "gray",
-                textAlign: "center",
-                lineHeight: "50px"
-              }}>Труба</div>
-              <div style={{
-                width: mod.width / 10,
-                height: 50,
-                background: "lightblue",
-                textAlign: "center",
-                lineHeight: "50px"
-              }}>{mod.name}</div>
-            </React.Fragment>
+      <div className="overflow-auto border p-4 bg-white">
+        <div className="flex items-end gap-0">
+          {selected.map((mod, index) => (
+            <div key={index} className="relative">
+              {index > 0 && (
+                <div
+                  style={{ width: 40 }}
+                  className="flex justify-center items-center bg-gray-300 text-xs text-center h-full"
+                >
+                  Труба
+                </div>
+              )}
+              <div className="w-[150px] h-[150px] flex flex-col items-center text-xs">
+                <img
+                  src={`modules/${mod.id}.png`}
+                  alt={mod.name}
+                  className="w-full object-contain"
+                />
+                <div className="text-center mt-1 font-medium">
+                  {mod.name}
+                </div>
+              </div>
+            </div>
           ))}
         </div>
-        {selectedModules.length > 0 && (
-          <div style={{
-            width: 40,
-            height: 50,
-            background: "gray",
-            textAlign: "center",
-            lineHeight: "50px"
-          }}>Труба</div>
-        )}
-        <div style={{ marginTop: 20, fontWeight: "bold" }}>
-          Общая длина: {totalWidth()} мм
-        </div>
+      </div>
+
+      <div className="font-bold text-lg">
+        Общая длина: {totalLength} мм
       </div>
     </div>
   );
