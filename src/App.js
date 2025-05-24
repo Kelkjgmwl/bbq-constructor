@@ -21,23 +21,23 @@ export default function BBQConstructor() {
 
   return (
     <div style={{ padding: '24px', fontFamily: 'sans-serif' }}>
-      <h1 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
+      <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}>
         Конфигуратор комплекса (CSS)
       </h1>
 
-      <div style={{ marginBottom: '16px' }}>
+      <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
         {modules.map((mod) => (
           <button
             key={mod.id}
             onClick={() => addModule(mod)}
             style={{
-              padding: '8px 12px',
-              marginRight: '8px',
-              marginBottom: '8px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              cursor: 'pointer',
+              padding: '12px 18px',
+              borderRadius: '8px',
               background: '#fff',
+              border: '2px solid #ccc',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '500'
             }}
           >
             {mod.name}
@@ -46,12 +46,14 @@ export default function BBQConstructor() {
         <button
           onClick={reset}
           style={{
-            padding: '8px 12px',
-            borderRadius: '4px',
+            padding: '12px 18px',
+            borderRadius: '8px',
             background: 'red',
             color: 'white',
             border: 'none',
-            cursor: 'pointer',
+            fontWeight: '600',
+            fontSize: '16px',
+            cursor: 'pointer'
           }}
         >
           Сбросить
@@ -61,38 +63,40 @@ export default function BBQConstructor() {
       <div
         style={{
           overflowX: 'auto',
-          padding: '16px',
-          borderRadius: '8px',
-          border: '1px solid #ccc',
-          background: '#fff', // общий задний фон
-          position: 'relative',
+          padding: '24px',
+          borderRadius: '16px',
+          background: '#f5f5f5',
+          border: '1px solid #ddd'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-end', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
           {selected.map((mod, index) => (
             <div
               key={index}
               style={{
-                position: 'relative',
-                marginLeft: index === 0 ? '0px' : '-40px',
+                marginLeft: index > 0 ? '-40px' : '0px',
                 zIndex: 10 + index,
-                width: '160px',
-                height: '170px',
+                width: '200px',
+                height: 'auto',
+                position: 'relative',
                 flexShrink: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center'
               }}
             >
               <img
                 src={`modules/${mod.id}.png`}
-                style={{ width: '100%', height: '140px', objectFit: 'contain' }}
                 alt={mod.name}
+                style={{ width: '100%', objectFit: 'contain', background: 'transparent' }}
               />
-              <div style={{ textAlign: 'center', fontSize: '14px', marginTop: '4px' }}>{mod.name}</div>
+              <div style={{ textAlign: 'center', fontSize: '20px', fontWeight: '500', marginTop: '8px' }}>{mod.name}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div style={{ marginTop: '20px', fontWeight: 'bold', fontSize: '18px' }}>
+      <div style={{ marginTop: '32px', fontWeight: 'bold', fontSize: '24px' }}>
         Общая длина: {totalLength} мм<br />
         Стоимость комплекса: {Math.round(priceTotal).toLocaleString()} ₸
       </div>
