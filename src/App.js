@@ -12,12 +12,12 @@ const modules = [
   { id: "koktal_1000", name: "Коктал 1000", width: 1020 },
   { id: "sink_500", name: "Мойка", width: 520 },
   { id: "gas_2burner_500", name: "Газ 500", width: 520 },
-  { id: "table_600", name: "Стол 600", width: 600 },
-  { id: "table_800", name: "Стол 800", width: 800 },
-  { id: "table_1000", name: "Стол 1000", width: 1000 },
-  { id: "table_1200", name: "Стол 1200", width: 1200 },
-  { id: "table_1500", name: "Стол 1500", width: 1500 },
-  { id: "table_2000", name: "Стол 2000", width: 2000 }
+  { id: "table_600", name: "Стол 600", width: 620 },
+  { id: "table_800", name: "Стол 800", width: 820 },
+  { id: "table_1000", name: "Стол 1000", width: 1020 },
+  { id: "table_1200", name: "Стол 1200", width: 1220 },
+  { id: "table_1500", name: "Стол 1500", width: 1520 },
+  { id: "table_2000", name: "Стол 2000", width: 2020 }
 ];
 
 export default function BBQConstructor() {
@@ -35,41 +35,41 @@ export default function BBQConstructor() {
   );
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4 max-w-screen overflow-x-auto">
       <div className="flex flex-wrap gap-2">
         {modules.map((m) => (
           <button
             key={m.id}
             onClick={() => addModule(m)}
-            className="border px-4 py-2 rounded hover:bg-gray-100"
+            className="border px-4 py-2 rounded hover:bg-gray-100 shadow text-sm"
           >
             {m.name}
           </button>
         ))}
-        <button onClick={reset} className="bg-red-600 text-white px-4 py-2 rounded">
+        <button onClick={reset} className="bg-red-600 text-white px-4 py-2 rounded shadow">
           Сбросить
         </button>
       </div>
 
-      <div className="overflow-auto border p-4 bg-white">
+      <div className="overflow-x-auto border p-6 bg-gray-50 rounded-xl shadow-inner">
         <div className="flex items-end gap-0">
           {selected.map((mod, index) => (
             <div key={index} className="relative">
               {index > 0 && (
                 <div
-                  style={{ width: 40 }}
-                  className="flex justify-center items-center bg-gray-300 text-xs text-center h-full"
+                  style={{ width: 30 }}
+                  className="flex justify-center items-center bg-gray-400 text-[10px] text-white h-full px-1"
                 >
                   Труба
                 </div>
               )}
-              <div className="w-[150px] h-[150px] flex flex-col items-center text-xs">
+              <div className="w-[160px] flex flex-col items-center text-xs">
                 <img
                   src={`modules/${mod.id}.png`}
                   alt={mod.name}
-                  className="w-full object-contain"
+                  className="w-full h-[140px] object-contain border border-gray-300 rounded-md bg-white"
                 />
-                <div className="text-center mt-1 font-medium">
+                <div className="text-center mt-1 font-medium text-xs">
                   {mod.name}
                 </div>
               </div>
@@ -78,7 +78,7 @@ export default function BBQConstructor() {
         </div>
       </div>
 
-      <div className="font-bold text-lg">
+      <div className="font-bold text-lg pt-2 border-t">
         Общая длина: {totalLength} мм
       </div>
     </div>
