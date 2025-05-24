@@ -1,12 +1,8 @@
 import { useState } from "react";
 
-// Общий коэффициент масштаба и перекрытия (меняется вручную)
-const scale = 0.4;
-const overlap = 40 * scale;
-
 const modules = [
   // Мангалы
-  { id: "mangal_550", name: "Мангал 550", width: 570 },
+  { id: "mangal_550", name: "Мангал 550", width: 580 },
   { id: "mangal_700", name: "Мангал 700", width: 720 },
   { id: "mangal_1000", name: "Мангал 1000", width: 1020 },
 
@@ -20,7 +16,7 @@ const modules = [
   { id: "koktal_800", name: "Коктал 800", width: 820 },
   { id: "koktal_1000", name: "Коктал 1000", width: 1020 },
 
-  // Столешницы
+  // Столы
   { id: "table_600", name: "Стол 600", width: 620 },
   { id: "table_800", name: "Стол 800", width: 820 },
   { id: "table_1000", name: "Стол 1000", width: 1020 },
@@ -28,13 +24,14 @@ const modules = [
   { id: "table_1500", name: "Стол 1500", width: 1520 },
   { id: "table_2000", name: "Стол 2000", width: 2020 },
 
-  // Газ и мойка
+  // Прочее
   { id: "gas_2burner_500", name: "Газ 500", width: 520 },
   { id: "sink_500", name: "Мойка 500", width: 520 },
 ];
 
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
+  const scale = 0.4; // 👈 Масштаб изображений и перекрытия
 
   const addModule = (mod) => setSelected([...selected, mod]);
   const reset = () => setSelected([]);
@@ -46,45 +43,59 @@ export default function BBQConstructor() {
   const pricePerMeter = 235000;
   const priceTotal = (totalLength / 1000) * pricePerMeter;
 
+  const categorized = {
+    Мангалы: modules.filter((m) => m.id.includes("mangal")),
+    Печи: modules.filter((m) => m.id.includes("pech")),
+    Кокталы: modules.filter((m) => m.id.includes("koktal")),
+    Столы: modules.filter((m) => m.id.includes("table")),
+    Прочее: modules.filter((m) => m.id.includes("gas") || m.id.includes("sink")),
+  };
+
   return (
     <div style={{ padding: '24px', fontFamily: 'sans-serif' }}>
       <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}>
         Конфигуратор комплекса
       </h1>
 
-      <div style={{ marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-        {modules.map((mod) => (
+      <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', marginBottom: '24px' }}>
+        {Object.entries(categorized).map(([group, mods]) => (
+          <div key={group} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {mods.map((mod) => (
+              <button
+                key={mod.id}
+                onClick={() => addModule(mod)}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  background: '#fff',
+                  border: '2px solid #ccc',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                }}
+              >
+                {mod.name}
+              </button>
+            ))}
+          </div>
+        ))}
+        <div>
           <button
-            key={mod.id}
-            onClick={() => addModule(mod)}
+            onClick={reset}
             style={{
               padding: '12px 18px',
               borderRadius: '8px',
-              background: '#fff',
-              border: '2px solid #ccc',
-              cursor: 'pointer',
+              background: 'red',
+              color: 'white',
+              border: 'none',
+              fontWeight: '600',
               fontSize: '16px',
-              fontWeight: '500'
+              cursor: 'pointer',
+              marginTop: '4px'
             }}
           >
-            {mod.name}
+            Сбросить
           </button>
-        ))}
-        <button
-          onClick={reset}
-          style={{
-            padding: '12px 18px',
-            borderRadius: '8px',
-            background: 'red',
-            color: 'white',
-            border: 'none',
-            fontWeight: '600',
-            fontSize: '16px',
-            cursor: 'pointer'
-          }}
-        >
-          Сбросить
-        </button>
+        </div>
       </div>
 
       <div
@@ -102,7 +113,7 @@ export default function BBQConstructor() {
             <div
               key={index}
               style={{
-                marginLeft: index > 0 ? `-${overlap}px` : '0px',
+                marginLeft: index > 0 ? `${-40 * scale}px` : '0px',
                 zIndex: index,
                 height: '500px',
                 width: `${mod.width * scale}px`,
