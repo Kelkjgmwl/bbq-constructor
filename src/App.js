@@ -22,48 +22,45 @@ const modules = [
 
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
+  const [hasRoof, setHasRoof] = useState(false);
+  const [hasApron, setHasApron] = useState(false);
+  const [hoodLength, setHoodLength] = useState('');
+
   const scale = 0.4;
 
   const addModule = (mod) => setSelected([...selected, mod]);
-  const removeModule = (indexToRemove) => {
-    setSelected(selected.filter((_, i) => i !== indexToRemove));
-  };
+  const removeModule = (i) => setSelected(selected.filter((_, index) => index !== i));
   const reset = () => setSelected([]);
 
-  const totalLength = selected.reduce(
-    (sum, m, i) => sum + m.width + (i > 0 ? -40 : 0),
-    0
-  );
-  const pricePerMeter = 235000;
-  const priceTotal = (totalLength / 1000) * pricePerMeter;
+  const totalLength = selected.reduce((sum, m, i) => sum + m.width + (i > 0 ? -40 : 0), 0);
+  const basePrice = (totalLength / 1000) * 235000;
+  const roofPrice = hasRoof ? 300000 : 0;
+  const apronPrice = hasApron ? 150000 : 0;
+  const hoodPrice = (parseInt(hoodLength) || 0) / 1000 * 150000;
+  const totalPrice = Math.round(basePrice + roofPrice + apronPrice + hoodPrice);
 
   const categorized = {
-    Мангалы: modules.filter((m) => m.id.includes("mangal")),
-    Печи: modules.filter((m) => m.id.includes("pech")),
-    Кокталы: modules.filter((m) => m.id.includes("koktal")),
-    Столы: modules.filter((m) => m.id.includes("table")),
-    Прочее: modules.filter((m) => m.id.includes("gas") || m.id.includes("sink")),
+    Мангалы: modules.filter(m => m.id.includes("mangal")),
+    Печи: modules.filter(m => m.id.includes("pech")),
+    Кокталы: modules.filter(m => m.id.includes("koktal")),
+    Столы: modules.filter(m => m.id.includes("table")),
+    Прочее: modules.filter(m => m.id.includes("gas") || m.id.includes("sink")),
   };
 
   return (
     <div style={{ padding: '24px', fontFamily: 'sans-serif' }}>
-      <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}>
-        Конфигуратор комплекса
-      </h1>
+      <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '24px' }}>Конфигуратор комплекса</h1>
 
       {/* Визуализация */}
-      <div
-        style={{
-          overflowX: 'auto',
-          padding: '24px',
-          borderRadius: '16px',
-          background: '#f7f7f7',
-          border: '1px solid #ddd',
-          position: 'relative',
-          marginBottom: '24px',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'flex-end', position: 'relative' }}>
+      <div style={{
+        overflowX: 'auto',
+        padding: '24px',
+        borderRadius: '16px',
+        background: '#f7f7f7',
+        border: '1px solid #ddd',
+        marginBottom: '24px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
           {selected.map((mod, index) => (
             <div
               key={index}
@@ -86,7 +83,6 @@ export default function BBQConstructor() {
                   width: '100%',
                   height: '100%',
                   objectFit: 'contain',
-                  background: 'transparent',
                 }}
               />
               <button
@@ -116,14 +112,7 @@ export default function BBQConstructor() {
       </div>
 
       {/* Кнопки */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-          gap: '20px',
-          marginBottom: '24px',
-        }}
-      >
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '20px' }}>
         {Object.entries(categorized).map(([group, mods]) => (
           <div key={group} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {mods.map((mod) => (
@@ -144,8 +133,7 @@ export default function BBQConstructor() {
             ))}
           </div>
         ))}
-
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <button
             onClick={reset}
             style={{
@@ -157,7 +145,6 @@ export default function BBQConstructor() {
               fontWeight: '600',
               fontSize: '16px',
               cursor: 'pointer',
-              marginTop: '4px'
             }}
           >
             Сбросить всё
@@ -165,9 +152,37 @@ export default function BBQConstructor() {
         </div>
       </div>
 
-      <div style={{ marginTop: '32px', fontWeight: 'bold', fontSize: '24px' }}>
+      {/* Доп. опции */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '20px', marginTop: '24px' }}>
+        <label>
+          <input type="checkbox" checked={hasRoof} onChange={(e) => setHasRoof(e.target.checked)} />
+          <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>навес</span>
+        </label>
+        <label>
+          <input type="checkbox" checked={hasApron} onChange={(e) => setHasApron(e.target.checked)} />
+          <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>фартук</span>
+        </label>
+        <label>
+          <span style={{ fontWeight: 'bold', marginRight: '8px' }}>длинна вытяжного зонта</span>
+          <input
+            type="number"
+            placeholder="мм"
+            value={hoodLength}
+            onChange={(e) => setHoodLength(e.target.value)}
+            style={{
+              padding: '4px 8px',
+              borderRadius: '6px',
+              border: '1px solid #ccc',
+              width: '80px'
+            }}
+          />
+        </label>
+      </div>
+
+      {/* Итог */}
+      <div style={{ marginTop: '32px', fontWeight: 'bold', fontSize: '20px' }}>
         Общая длина: {totalLength} мм<br />
-        Стоимость комплекса: {Math.round(priceTotal).toLocaleString()} ₸
+        Стоимость комплекса: {totalPrice.toLocaleString()} ₸
       </div>
     </div>
   );
