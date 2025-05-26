@@ -1,6 +1,4 @@
-// Конфигуратор BEL BBQ — экспорт в PNG в формате A4, без PDF, с перетаскиванием и ФИО
-import { useEffect, useRef, useState } from "react";
-import html2canvas from "html2canvas";
+mport { useEffect, useRef, useState } from "react";
 
 const modules = [
   { id: "mangal_550", name: "Мангал 550", width: 570 },
@@ -25,24 +23,37 @@ const modules = [
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
   const [scale, setScale] = useState(1);
-  const [dragIndex, setDragIndex] = useState(null);
-  const [fio, setFio] = useState("");
-  const [clientDate, setClientDate] = useState("");
 
+  const [hasApron, setHasApron] = useState(false);
+  const [apronLength, setApronLength] = useState("");
+  const [apronPrice, setApronPrice] = useState("");
+
+  const [hasRoof, setHasRoof] = useState(false);
+  const [roofPrice, setRoofPrice] = useState("");
+
+  const [hoodLength, setHoodLength] = useState("");
+  const [hoodPrice, setHoodPrice] = useState("");
+
+  const [color, setColor] = useState("");
+
+  const [glassDoor, setGlassDoor] = useState(false);
+  const [skewers, setSkewers] = useState(false);
+  const [tools, setTools] = useState(false);
+  const [cauldrons, setCauldrons] = useState({
+    "12": false,
+    "18": false,
+    "22": false,
+    "50": false,
+    "80": false,
+  });
+
+  const containerRef = useRef(null);
   const baseScale = 0.4;
   const pipeWidth = 40;
-  const containerRef = useRef(null);
-  const fullRef = useRef(null);
 
   const addModule = (mod) => setSelected([...selected, mod]);
   const removeModule = (i) => setSelected(selected.filter((_, index) => index !== i));
-
-  const moveModule = (from, to) => {
-    const copy = [...selected];
-    const [moved] = copy.splice(from, 1);
-    copy.splice(to, 0, moved);
-    setSelected(copy);
-  };
+  const reset = () => setSelected([]);
 
   const totalLength =
     (selected.length > 0 ? pipeWidth : 0) +
@@ -51,103 +62,286 @@ export default function BBQConstructor() {
 
   useEffect(() => {
     if (!containerRef.current || selected.length === 0) return;
+
     const resizeObserver = new ResizeObserver((entries) => {
       const containerWidth = entries[0].contentRect.width;
       const neededWidth = totalLength * baseScale;
       const newScale = Math.min(1, Math.max(0.25, containerWidth / neededWidth));
       setScale(newScale);
     });
+
     resizeObserver.observe(containerRef.current);
     return () => resizeObserver.disconnect();
   }, [selected, totalLength]);
-
-  const exportAsImage = async () => {
-    if (!fullRef.current) return;
-    const canvas = await html2canvas(fullRef.current, {
-      scale: 2,
-      useCORS: true,
-      windowWidth: 1123, // A4 width in px @ 96dpi
-      windowHeight: 794,
-    });
-    const link = document.createElement("a");
-    link.download = `bbq-order-${Date.now()}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+  const categorized = {
+    Мангалы: modules.filter((m) => m.id.includes("mangal")),
+    Печи: modules.filter((m) => m.id.includes("pech")),
+    Кокталы: modules.filter((m) => m.id.includes("koktal")),
+    Столы: modules.filter((m) => m.id.includes("table")),
+    Прочее: modules.filter((m) => m.id.includes("gas") || m.id.includes("sink")),
   };
 
-  return (
-    <div ref={fullRef} style={{ padding: 24, fontFamily: "sans-serif", maxWidth: "100vw", background: "white" }}>
-      <h1 style={{ fontSize: 28, marginBottom: 16 }}>Конфигуратор комплекса BEL BBQ</h1>
+  const basePrice = (totalLength / 1000) * 235000;
+  const apron =
+    hasApron && apronLength && apronPrice
+      ? (parseInt(apronLength) / 1000) * parseInt(apronPrice)
+      : 0;
+  const roof = hasRoof && roofPrice ? parseInt(roofPrice) : 0;
+  const hood =
+    hoodLength && hoodPrice
+      ? (parseInt(hoodLength) / 1000) * parseInt(hoodPrice)
+      : 0;
 
-      <div
-        ref={containerRef}
-        style={{ resize: "both", overflow: "auto", padding: 16, borderRadius: 12, background: "#f5f5f5", border: "1px solid #ccc", minHeight: 300, marginBottom: 24 }}
-      >
+  const accessories = [
+    glassDoor && { name: "Дверца со стеклом", price: 42000 },
+    skewers && { name: "Шампуры", price: 10000 },
+    tools && { name: "Совок/Кочерга", price: 14000 },
+    ...Object.entries(cauldrons)
+      .filter(([_, val]) => val)
+      .map(([size]) => {
+        const prices = { "12": 22000, "18": 28000, "22": 35000, "50": 65000, "80": 85000 };
+        return { name: Казан на ${size} л, price: prices[size] };
+      }),
+  ].filter(Boolean);
+
+  const accessoriesTotal = accessories.reduce((sum, acc) => sum + acc.price, 0);
+  const totalPrice = Math.round(basePrice + apron + roof + hood + accessoriesTotal);
+
+  return (
+    <div style={{ display: "flex", gap: 32, flexWrap: "wrap", padding: 24 }}>
+      <div style={{ flex: 1, minWidth: 300 }}>
+        {/* Визуализация */}
         <div
-          style={{ transform: `scale(${scale})`, transformOrigin: "left bottom", display: "flex", alignItems: "flex-end", height: 500 }}
+          ref={containerRef}
+          style={{
+            resize: "both",
+            overflow: "auto",
+            padding: 16,
+            borderRadius: 16,
+            background: "#f7f7f7",
+            border: "1px solid #ddd",
+            marginBottom: 24,
+            minHeight: 300,
+          }}
         >
-          {selected.map((mod, index) => (
-            <div
-              key={index}
-              draggable
-              onDragStart={() => setDragIndex(index)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => dragIndex !== null && moveModule(dragIndex, index)}
-              style={{
-                marginLeft: index > 0 ? `${-pipeWidth * baseScale}px` : 0,
-                width: `${mod.width * baseScale}px`,
-                height: "500px",
-                position: "relative",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <img src={`modules/${mod.id}.png`} alt={mod.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-              <button
-                onClick={() => removeModule(index)}
-                style={{ position: "absolute", top: 4, right: 4, background: "red", color: "white", border: "none", borderRadius: "50%", width: 24, height: 24, cursor: "pointer" }}
-              >✕</button>
+          <div
+            style={{
+              transform: scale(${scale}),
+              transformOrigin: "left bottom",
+              display: "flex",
+              alignItems: "flex-end",
+              height: 500,
+            }}
+          >
+            {selected.map((mod, index) => (
+              <div
+                key={index}
+                style={{
+                  marginLeft: index > 0 ? ${-pipeWidth * baseScale}px : "0px",
+                  zIndex: index,
+                  width: ${mod.width * baseScale}px,
+                  height: "500px",
+                  position: "relative",
+                  flexShrink: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  src={modules/${mod.id}.png}
+                  alt={mod.name}
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                />
+                <button
+                  onClick={() => removeModule(index)}
+                  style={{
+                    position: "absolute",
+                    top: 4,
+                    right: 4,
+                    background: "red",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: 24,
+                    height: 24,
+                    fontSize: 14,
+                    cursor: "pointer",
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Кнопки модулей */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 24 }}>
+          {Object.entries(categorized).map(([group, mods]) => (
+            <div key={group} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <strong>{group}</strong>
+              {mods.map((mod) => (
+                <button
+                  key={mod.id}
+                  onClick={() => addModule(mod)}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    background: "#fff",
+                    border: "1px solid #ccc",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                  }}
+                >
+                  {mod.name}
+                </button>
+              ))}
             </div>
           ))}
+          <div>
+            <button
+              onClick={reset}
+              style={{
+                padding: "10px 16px",
+                borderRadius: "6px",
+                background: "red",
+                color: "white",
+                border: "none",
+                fontWeight: "600",
+                fontSize: "14px",
+                cursor: "pointer",
+                marginTop: 18,
+              }}
+            >
+              Сбросить всё
+            </button>
+          </div>
+        </div>
+        {/* Опции и параметры */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <label>
+            <input type="checkbox" checked={hasApron} onChange={(e) => setHasApron(e.target.checked)} />
+            <span style={{ marginLeft: 8, fontWeight: "bold" }}>Фартук</span>
+          </label>
+          {hasApron && (
+            <div style={{ display: "flex", gap: "12px" }}>
+              <input
+                type="number"
+                placeholder="Длина (мм)"
+                value={apronLength}
+                onChange={(e) => setApronLength(e.target.value)}
+              />
+              <input
+                type="number"
+                placeholder="Цена (₸/м)"
+                value={apronPrice}
+                onChange={(e) => setApronPrice(e.target.value)}
+              />
+            </div>
+          )}
+
+          <label>
+            <input type="checkbox" checked={hasRoof} onChange={(e) => setHasRoof(e.target.checked)} />
+            <span style={{ marginLeft: 8, fontWeight: "bold" }}>Навес</span>
+          </label>
+          {hasRoof && (
+            <input
+              type="number"
+              placeholder="Цена (₸)"
+              value={roofPrice}
+              onChange={(e) => setRoofPrice(e.target.value)}
+              style={{ width: 120 }}
+            />
+          )}
+
+          <label style={{ fontWeight: "bold", marginTop: 8 }}>Вытяжной зонт:</label>
+          <div style={{ display: "flex", gap: "12px" }}>
+            <input
+              type="number"
+              placeholder="Длина (мм)"
+              value={hoodLength}
+              onChange={(e) => setHoodLength(e.target.value)}
+            />
+            <input
+              type="number"
+              placeholder="Цена (₸/м)"
+              value={hoodPrice}
+              onChange={(e) => setHoodPrice(e.target.value)}
+            />
+          </div>
+
+          {/* Цвет / покрытие */}
+          <div style={{ marginTop: 16 }}>
+            <strong>Цвет / покрытие:</strong>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <input
+                  type="radio"
+                  name="color"
+                  value="Антрацит"
+                  checked={color === "Антрацит"}
+                  onChange={(e) => setColor(e.target.value)}
+                />
+                <img src="/colors/anthracite.png" alt="Антрацит" style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }} />
+                Антрацит
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <input
+                  type="radio"
+                  name="color"
+                  value="Черная Шагрень"
+                  checked={color === "Черная Шагрень"}
+                  onChange={(e) => setColor(e.target.value)}
+                />
+                <img src="/colors/black-texture.png" alt="Черная Шагрень" style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }} />
+                Черная Шагрень (Полимерная покраска)
+              </label>
+            </div>
+          </div>
+
+          {/* Комплектующие */}
+          <div style={{ marginTop: 24 }}>
+            <strong>Комплектующие:</strong>
+            <label><input type="checkbox" checked={glassDoor} onChange={(e) => setGlassDoor(e.target.checked)} /> Дверца со стеклом (42 000 ₸)</label>
+            <label><input type="checkbox" checked={skewers} onChange={(e) => setSkewers(e.target.checked)} /> Шампуры (10 000 ₸)</label>
+            <label><input type="checkbox" checked={tools} onChange={(e) => setTools(e.target.checked)} /> Совок / Кочерга (14 000 ₸)</label>
+            <div style={{ marginTop: 8 }}>
+              <strong>Казаны:</strong><br />
+              {["12", "18", "22", "50", "80"].map((size) => (
+                <label key={size} style={{ display: "block" }}>
+                  <input
+                    type="checkbox"
+                    checked={cauldrons[size]}
+                    onChange={(e) => setCauldrons({ ...cauldrons, [size]: e.target.checked })}
+                  /> Казан {size} л
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
-        {modules.map((mod) => (
-          <button
-            key={mod.id}
-            onClick={() => addModule(mod)}
-            style={{ padding: 6, borderRadius: 6, border: "1px solid #ccc", cursor: "pointer" }}
-          >
-            {mod.name}
-          </button>
-        ))}
-        <button
-          onClick={() => setSelected([])}
-          style={{ background: "red", color: "white", padding: "6px 12px", border: "none", borderRadius: 6 }}
-        >
-          Сбросить всё
-        </button>
-      </div>
+      {/* Итог и отчёт */}
+      <div style={{ flexBasis: "100%", marginTop: 32, fontSize: 18 }}>
+        <div style={{ fontWeight: "bold", fontSize: 20 }}>
+          Общая длина: {totalLength} мм<br />
+          Общая стоимость: {totalPrice.toLocaleString()} ₸<br />
+        </div>
+        {color && <div>Цвет покрытия: <strong>{color}</strong></div>}
 
-      <div style={{ marginTop: 32 }}>
-        <h3>Итог:</h3>
-        <p>Общая длина: {totalLength} мм</p>
-      </div>
-
-      <div style={{ marginTop: 32, borderTop: "1px solid #ccc", paddingTop: 16 }}>
-        <label style={{ display: "block", marginBottom: 12 }}>
-          ФИО клиента:
-          <input type="text" value={fio} onChange={(e) => setFio(e.target.value)} style={{ width: "100%", padding: 8, marginTop: 4 }} />
-        </label>
-        <label style={{ display: "block", marginBottom: 12 }}>
-          Дата оформления:
-          <input type="datetime-local" value={clientDate} onChange={(e) => setClientDate(e.target.value)} style={{ width: "100%", padding: 8, marginTop: 4 }} />
-        </label>
-        <button onClick={exportAsImage} style={{ background: "#007bff", color: "white", padding: "10px 16px", border: "none", borderRadius: 6 }}>
-          Сохранить страницу A4 (PNG)
-        </button>
+        <div style={{ marginTop: 12 }}>
+          <strong>Разбивка стоимости:</strong>
+          <ul style={{ margin: 0, paddingLeft: 20 }}>
+            <li>Модули: {basePrice.toLocaleString()} ₸</li>
+            {hasApron && apron > 0 && <li>Фартук: {Math.round(apron).toLocaleString()} ₸</li>}
+            {hasRoof && roof > 0 && <li>Навес: {roof.toLocaleString()} ₸</li>}
+            {hood > 0 && <li>Вытяжной зонт: {Math.round(hood).toLocaleString()} ₸</li>}
+            {accessories.map((a, i) => (
+              <li key={i}>{a.name}: {a.price.toLocaleString()} ₸</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
