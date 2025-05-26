@@ -23,26 +23,42 @@ const modules = [
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
   const [scale, setScale] = useState(1);
-  const [hoodLength, setHoodLength] = useState("");
-  const [hoodPrice, setHoodPrice] = useState("");
+
+  const [hasApron, setHasApron] = useState(false);
   const [apronLength, setApronLength] = useState("");
   const [apronPrice, setApronPrice] = useState("");
-  const [roofPrice, setRoofPrice] = useState("");
-  const [hasApron, setHasApron] = useState(false);
+
   const [hasRoof, setHasRoof] = useState(false);
+  const [roofPrice, setRoofPrice] = useState("");
+
+  const [hoodLength, setHoodLength] = useState("");
+  const [hoodPrice, setHoodPrice] = useState("");
+
   const [color, setColor] = useState("");
 
-  const baseScale = 0.4;
+  const [glassDoor, setGlassDoor] = useState(false);
+  const [skewers, setSkewers] = useState(false);
+  const [tools, setTools] = useState(false);
+  const [cauldrons, setCauldrons] = useState({
+    "12": false,
+    "18": false,
+    "22": false,
+    "50": false,
+    "80": false,
+  });
+
   const containerRef = useRef(null);
+  const baseScale = 0.4;
+  const pipeWidth = 40;
 
   const addModule = (mod) => setSelected([...selected, mod]);
   const removeModule = (i) => setSelected(selected.filter((_, index) => index !== i));
   const reset = () => setSelected([]);
 
   const totalLength =
-    (selected.length > 0 ? 40 : 0) +
-    selected.reduce((sum, m, i) => sum + m.width + (i > 0 ? 40 : 0), 0) +
-    (selected.length > 0 ? 40 : 0);
+    (selected.length > 0 ? pipeWidth : 0) +
+    selected.reduce((sum, m, i) => sum + m.width + (i > 0 ? pipeWidth : 0), 0) +
+    (selected.length > 0 ? pipeWidth : 0);
 
   useEffect(() => {
     if (!containerRef.current || selected.length === 0) return;
@@ -57,7 +73,6 @@ export default function BBQConstructor() {
     resizeObserver.observe(containerRef.current);
     return () => resizeObserver.disconnect();
   }, [selected, totalLength]);
-
   const categorized = {
     Мангалы: modules.filter((m) => m.id.includes("mangal")),
     Печи: modules.filter((m) => m.id.includes("pech")),
@@ -67,225 +82,268 @@ export default function BBQConstructor() {
   };
 
   const basePrice = (totalLength / 1000) * 235000;
-  const roof = hasRoof && roofPrice ? parseInt(roofPrice) : 0;
   const apron =
     hasApron && apronLength && apronPrice
       ? (parseInt(apronLength) / 1000) * parseInt(apronPrice)
       : 0;
+  const roof = hasRoof && roofPrice ? parseInt(roofPrice) : 0;
   const hood =
     hoodLength && hoodPrice
       ? (parseInt(hoodLength) / 1000) * parseInt(hoodPrice)
       : 0;
 
-  const totalPrice = Math.round(basePrice + roof + apron + hood);
+  const accessories = [
+    glassDoor && { name: "Дверца со стеклом", price: 42000 },
+    skewers && { name: "Шампуры", price: 10000 },
+    tools && { name: "Совок/Кочерга", price: 14000 },
+    ...Object.entries(cauldrons)
+      .filter(([_, val]) => val)
+      .map(([size]) => {
+        const prices = { "12": 22000, "18": 28000, "22": 35000, "50": 65000, "80": 85000 };
+        return { name: `Казан на ${size} л`, price: prices[size] };
+      }),
+  ].filter(Boolean);
+
+  const accessoriesTotal = accessories.reduce((sum, acc) => sum + acc.price, 0);
+  const totalPrice = Math.round(basePrice + apron + roof + hood + accessoriesTotal);
 
   return (
-    <div style={{ padding: 24, fontFamily: "sans-serif", maxWidth: "100vw", overflowX: "hidden" }}>
-      <h1 style={{ fontSize: 28, fontWeight: "bold", marginBottom: 24 }}>
-        Конфигуратор комплекса BEL BBQ
-      </h1>
-
-      {/* Визуализация */}
-      <div
-        ref={containerRef}
-        style={{
-          resize: "both",
-          overflow: "auto",
-          padding: 16,
-          borderRadius: 16,
-          background: "#f7f7f7",
-          border: "1px solid #ddd",
-          marginBottom: 12,
-          minWidth: "300px",
-          minHeight: "300px",
-          maxWidth: "100%",
-          boxSizing: "border-box",
-        }}
-      >
+    <div style={{ display: "flex", gap: 32, flexWrap: "wrap", padding: 24 }}>
+      <div style={{ flex: 1, minWidth: 300 }}>
+        {/* Визуализация */}
         <div
+          ref={containerRef}
           style={{
-            transform: `scale(${scale})`,
-            transformOrigin: "left bottom",
-            display: "flex",
-            alignItems: "flex-end",
-            height: "500px",
+            resize: "both",
+            overflow: "auto",
+            padding: 16,
+            borderRadius: 16,
+            background: "#f7f7f7",
+            border: "1px solid #ddd",
+            marginBottom: 24,
+            minHeight: 300,
           }}
         >
-          {selected.map((mod, index) => (
-            <div
-              key={index}
-              style={{
-                marginLeft: index > 0 ? `${-40 * baseScale}px` : "0px",
-                zIndex: index,
-                width: `${mod.width * baseScale}px`,
-                height: "500px",
-                position: "relative",
-                flexShrink: 0,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <img
-                src={`modules/${mod.id}.png`}
-                alt={mod.name}
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
-              <button
-                onClick={() => removeModule(index)}
-                style={{
-                  position: "absolute",
-                  top: 4,
-                  right: 4,
-                  background: "red",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "50%",
-                  width: 24,
-                  height: 24,
-                  fontSize: 14,
-                  cursor: "pointer",
-                }}
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Кнопки */}
-      <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", marginBottom: "24px" }}>
-        {Object.entries(categorized).map(([group, mods]) => (
-          <div key={group} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {mods.map((mod) => (
-              <button
-                key={mod.id}
-                onClick={() => addModule(mod)}
-                style={{
-                  padding: "8px 12px",
-                  borderRadius: "6px",
-                  background: "#fff",
-                  border: "2px solid #ccc",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  width: "100%",
-                  maxWidth: "120px",
-                }}
-              >
-                {mod.name}
-              </button>
-            ))}
-          </div>
-        ))}
-        <div>
-          <button
-            onClick={reset}
+          <div
             style={{
-              padding: "12px 18px",
-              borderRadius: "8px",
-              background: "red",
-              color: "white",
-              border: "none",
-              fontWeight: "600",
-              fontSize: "16px",
-              cursor: "pointer",
-              width: "100%",
-              maxWidth: "120px",
+              transform: `scale(${scale})`,
+              transformOrigin: "left bottom",
+              display: "flex",
+              alignItems: "flex-end",
+              height: 500,
             }}
           >
-            Сбросить всё
-          </button>
+            {selected.map((mod, index) => (
+              <div
+                key={index}
+                style={{
+                  marginLeft: index > 0 ? `${-pipeWidth * baseScale}px` : "0px",
+                  zIndex: index,
+                  width: `${mod.width * baseScale}px`,
+                  height: "500px",
+                  position: "relative",
+                  flexShrink: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  src={`modules/${mod.id}.png`}
+                  alt={mod.name}
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                />
+                <button
+                  onClick={() => removeModule(index)}
+                  style={{
+                    position: "absolute",
+                    top: 4,
+                    right: 4,
+                    background: "red",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: 24,
+                    height: 24,
+                    fontSize: 14,
+                    cursor: "pointer",
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Опции */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: 32 }}>
-        <label>
-          <input type="checkbox" checked={hasApron} onChange={(e) => setHasApron(e.target.checked)} />
-          <span style={{ marginLeft: 8, fontWeight: "bold" }}>Фартук</span>
-        </label>
-        {hasApron && (
-          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+        {/* Кнопки модулей */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 24 }}>
+          {Object.entries(categorized).map(([group, mods]) => (
+            <div key={group} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <strong>{group}</strong>
+              {mods.map((mod) => (
+                <button
+                  key={mod.id}
+                  onClick={() => addModule(mod)}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    background: "#fff",
+                    border: "1px solid #ccc",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                  }}
+                >
+                  {mod.name}
+                </button>
+              ))}
+            </div>
+          ))}
+          <div>
+            <button
+              onClick={reset}
+              style={{
+                padding: "10px 16px",
+                borderRadius: "6px",
+                background: "red",
+                color: "white",
+                border: "none",
+                fontWeight: "600",
+                fontSize: "14px",
+                cursor: "pointer",
+                marginTop: 18,
+              }}
+            >
+              Сбросить всё
+            </button>
+          </div>
+        </div>
+        {/* Опции и параметры */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <label>
+            <input type="checkbox" checked={hasApron} onChange={(e) => setHasApron(e.target.checked)} />
+            <span style={{ marginLeft: 8, fontWeight: "bold" }}>Фартук</span>
+          </label>
+          {hasApron && (
+            <div style={{ display: "flex", gap: "12px" }}>
+              <input
+                type="number"
+                placeholder="Длина (мм)"
+                value={apronLength}
+                onChange={(e) => setApronLength(e.target.value)}
+              />
+              <input
+                type="number"
+                placeholder="Цена (₸/м)"
+                value={apronPrice}
+                onChange={(e) => setApronPrice(e.target.value)}
+              />
+            </div>
+          )}
+
+          <label>
+            <input type="checkbox" checked={hasRoof} onChange={(e) => setHasRoof(e.target.checked)} />
+            <span style={{ marginLeft: 8, fontWeight: "bold" }}>Навес</span>
+          </label>
+          {hasRoof && (
+            <input
+              type="number"
+              placeholder="Цена (₸)"
+              value={roofPrice}
+              onChange={(e) => setRoofPrice(e.target.value)}
+              style={{ width: 120 }}
+            />
+          )}
+
+          <label style={{ fontWeight: "bold", marginTop: 8 }}>Вытяжной зонт:</label>
+          <div style={{ display: "flex", gap: "12px" }}>
             <input
               type="number"
               placeholder="Длина (мм)"
-              value={apronLength}
-              onChange={(e) => setApronLength(e.target.value)}
+              value={hoodLength}
+              onChange={(e) => setHoodLength(e.target.value)}
             />
             <input
               type="number"
               placeholder="Цена (₸/м)"
-              value={apronPrice}
-              onChange={(e) => setApronPrice(e.target.value)}
+              value={hoodPrice}
+              onChange={(e) => setHoodPrice(e.target.value)}
             />
           </div>
-        )}
 
-        <label>
-          <input type="checkbox" checked={hasRoof} onChange={(e) => setHasRoof(e.target.checked)} />
-          <span style={{ marginLeft: 8, fontWeight: "bold" }}>Навес</span>
-        </label>
-        {hasRoof && (
-          <input
-            type="number"
-            placeholder="Цена (₸)"
-            value={roofPrice}
-            onChange={(e) => setRoofPrice(e.target.value)}
-            style={{ width: "120px" }}
-          />
-        )}
+          {/* Цвет / покрытие */}
+          <div style={{ marginTop: 16 }}>
+            <strong>Цвет / покрытие:</strong>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <input
+                  type="radio"
+                  name="color"
+                  value="Антрацит"
+                  checked={color === "Антрацит"}
+                  onChange={(e) => setColor(e.target.value)}
+                />
+                <img src="/colors/anthracite.png" alt="Антрацит" style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }} />
+                Антрацит
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <input
+                  type="radio"
+                  name="color"
+                  value="Черная Шагрень"
+                  checked={color === "Черная Шагрень"}
+                  onChange={(e) => setColor(e.target.value)}
+                />
+                <img src="/colors/black-texture.png" alt="Черная Шагрень" style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }} />
+                Черная Шагрень (Полимерная покраска)
+              </label>
+            </div>
+          </div>
 
-        <label style={{ fontWeight: "bold" }}>Длина вытяжного зонта и цена:</label>
-        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-          <input
-            type="number"
-            placeholder="Длина (мм)"
-            value={hoodLength}
-            onChange={(e) => setHoodLength(e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="Цена (₸/м)"
-            value={hoodPrice}
-            onChange={(e) => setHoodPrice(e.target.value)}
-          />
-        </div>
-
-        {/* Цвет */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: 16 }}>
-          <strong>Цвет / покрытие:</strong>
-          <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <input
-              type="radio"
-              name="color"
-              value="Антрацит"
-              checked={color === "Антрацит"}
-              onChange={(e) => setColor(e.target.value)}
-            />
-            <img src="/colors/anthracite.png" alt="Антрацит" style={{ width: 24, height: 24, borderRadius: 4, border: "1px solid #ccc" }} />
-            Антрацит
-          </label>
-          <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <input
-              type="radio"
-              name="color"
-              value="Черная Шагрень"
-              checked={color === "Черная Шагрень"}
-              onChange={(e) => setColor(e.target.value)}
-            />
-            <img src="/colors/black-texture.png" alt="Черная Шагрень" style={{ width: 24, height: 24, borderRadius: 4, border: "1px solid #ccc" }} />
-            Черная Шагрень (Полимерная покраска)
-          </label>
+          {/* Комплектующие */}
+          <div style={{ marginTop: 24 }}>
+            <strong>Комплектующие:</strong>
+            <label><input type="checkbox" checked={glassDoor} onChange={(e) => setGlassDoor(e.target.checked)} /> Дверца со стеклом (42 000 ₸)</label>
+            <label><input type="checkbox" checked={skewers} onChange={(e) => setSkewers(e.target.checked)} /> Шампуры (10 000 ₸)</label>
+            <label><input type="checkbox" checked={tools} onChange={(e) => setTools(e.target.checked)} /> Совок / Кочерга (14 000 ₸)</label>
+            <div style={{ marginTop: 8 }}>
+              <strong>Казаны:</strong><br />
+              {["12", "18", "22", "50", "80"].map((size) => (
+                <label key={size} style={{ display: "block" }}>
+                  <input
+                    type="checkbox"
+                    checked={cauldrons[size]}
+                    onChange={(e) => setCauldrons({ ...cauldrons, [size]: e.target.checked })}
+                  /> Казан {size} л
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Итог */}
-      <div style={{ marginTop: 32, fontWeight: "bold", fontSize: 20 }}>
-        Общая длина: {totalLength} мм<br />
-        Стоимость комплекса: {totalPrice.toLocaleString()} ₸<br />
-        {color && <>Цвет покрытия: {color}</>}
+      {/* Итог и отчёт */}
+      <div style={{ flexBasis: "100%", marginTop: 32, fontSize: 18 }}>
+        <div style={{ fontWeight: "bold", fontSize: 20 }}>
+          Общая длина: {totalLength} мм<br />
+          Общая стоимость: {totalPrice.toLocaleString()} ₸<br />
+        </div>
+        {color && <div>Цвет покрытия: <strong>{color}</strong></div>}
+
+        <div style={{ marginTop: 12 }}>
+          <strong>Разбивка стоимости:</strong>
+          <ul style={{ margin: 0, paddingLeft: 20 }}>
+            <li>Модули: {basePrice.toLocaleString()} ₸</li>
+            {hasApron && apron > 0 && <li>Фартук: {Math.round(apron).toLocaleString()} ₸</li>}
+            {hasRoof && roof > 0 && <li>Навес: {roof.toLocaleString()} ₸</li>}
+            {hood > 0 && <li>Вытяжной зонт: {Math.round(hood).toLocaleString()} ₸</li>}
+            {accessories.map((a, i) => (
+              <li key={i}>{a.name}: {a.price.toLocaleString()} ₸</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
 }
+
