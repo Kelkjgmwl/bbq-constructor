@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const modules = [
-  { id: "mangal_550", name: "Мангал 550", width: 580 },
+  { id: "mangal_550", name: "Мангал 550", width: 520 },
   { id: "mangal_700", name: "Мангал 700", width: 720 },
   { id: "mangal_1000", name: "Мангал 1000", width: 1020 },
   { id: "pech_480", name: "Печь 480", width: 500 },
@@ -10,14 +10,14 @@ const modules = [
   { id: "koktal_600", name: "Коктал 600", width: 620 },
   { id: "koktal_800", name: "Коктал 800", width: 820 },
   { id: "koktal_1000", name: "Коктал 1000", width: 1020 },
-  { id: "table_600", name: "Стол 600", width: 620 },
-  { id: "table_800", name: "Стол 800", width: 820 },
-  { id: "table_1000", name: "Стол 1000", width: 1020 },
-  { id: "table_1200", name: "Стол 1200", width: 1220 },
-  { id: "table_1500", name: "Стол 1500", width: 1520 },
-  { id: "table_2000", name: "Стол 2000", width: 2020 },
-  { id: "gas_2burner_500", name: "Газ 500", width: 520 },
-  { id: "sink_500", name: "Мойка 500", width: 520 },
+  { id: "table_600", name: "Стол 600", width: 600 },
+  { id: "table_800", name: "Стол 800", width: 800 },
+  { id: "table_1000", name: "Стол 1000", width: 1000 },
+  { id: "table_1200", name: "Стол 1200", width: 1200 },
+  { id: "table_1500", name: "Стол 1500", width: 1500 },
+  { id: "table_2000", name: "Стол 2000", width: 2000 },
+  { id: "gas_2burner_500", name: "Газ 500", width: 500 },
+  { id: "sink_500", name: "Мойка 500", width: 500 },
 ];
 
 export default function BBQConstructor() {
