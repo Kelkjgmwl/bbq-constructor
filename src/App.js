@@ -1,4 +1,4 @@
-mport { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const modules = [
   { id: "mangal_550", name: "Мангал 550", width: 570 },
