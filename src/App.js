@@ -82,7 +82,7 @@ export default function BBQConstructor() {
   return (
     <div style={{ padding: 24, fontFamily: "sans-serif", maxWidth: "100vw", overflowX: "hidden" }}>
       <h1 style={{ fontSize: 28, fontWeight: "bold", marginBottom: 24 }}>
-        Конфигуратор комплекса
+        Конфигуратор комплекса BEL BBQ
       </h1>
 
       {/* Визуализация */}
