@@ -22,10 +22,15 @@ const modules = [
 
 export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
-  const [hasRoof, setHasRoof] = useState(false);
-  const [hasApron, setHasApron] = useState(false);
-  const [hoodLength, setHoodLength] = useState("");
   const [scale, setScale] = useState(1);
+  const [hoodLength, setHoodLength] = useState("");
+  const [hoodPrice, setHoodPrice] = useState("");
+  const [apronLength, setApronLength] = useState("");
+  const [apronPrice, setApronPrice] = useState("");
+  const [roofPrice, setRoofPrice] = useState("");
+  const [hasApron, setHasApron] = useState(false);
+  const [hasRoof, setHasRoof] = useState(false);
+  const [color, setColor] = useState("");
 
   const baseScale = 0.4;
   const containerRef = useRef(null);
@@ -34,7 +39,6 @@ export default function BBQConstructor() {
   const removeModule = (i) => setSelected(selected.filter((_, index) => index !== i));
   const reset = () => setSelected([]);
 
-  // ✅ Новый расчёт с трубами по краям и между модулями
   const totalLength =
     (selected.length > 0 ? 40 : 0) +
     selected.reduce((sum, m, i) => sum + m.width + (i > 0 ? 40 : 0), 0) +
@@ -63,10 +67,17 @@ export default function BBQConstructor() {
   };
 
   const basePrice = (totalLength / 1000) * 235000;
-  const roofPrice = hasRoof ? 300000 : 0;   // 💰 здесь изменить цену за навес
-  const apronPrice = hasApron ? 150000 : 0; // 💰 здесь изменить цену за фартук
-  const hoodPrice = (parseInt(hoodLength) || 0) / 1000 * 150000;
-  const totalPrice = Math.round(basePrice + roofPrice + apronPrice + hoodPrice);
+  const roof = hasRoof && roofPrice ? parseInt(roofPrice) : 0;
+  const apron =
+    hasApron && apronLength && apronPrice
+      ? (parseInt(apronLength) / 1000) * parseInt(apronPrice)
+      : 0;
+  const hood =
+    hoodLength && hoodPrice
+      ? (parseInt(hoodLength) / 1000) * parseInt(hoodPrice)
+      : 0;
+
+  const totalPrice = Math.round(basePrice + roof + apron + hood);
 
   return (
     <div style={{ padding: 24, fontFamily: "sans-serif", maxWidth: "100vw", overflowX: "hidden" }}>
@@ -74,6 +85,7 @@ export default function BBQConstructor() {
         Конфигуратор комплекса
       </h1>
 
+      {/* Визуализация */}
       <div
         ref={containerRef}
         style={{
@@ -137,12 +149,12 @@ export default function BBQConstructor() {
               >
                 ✕
               </button>
-              {/* 🔇 Убрано имя модуля под картинкой */}
             </div>
           ))}
         </div>
       </div>
 
+      {/* Кнопки */}
       <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", marginBottom: "24px" }}>
         {Object.entries(categorized).map(([group, mods]) => (
           <div key={group} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -187,32 +199,91 @@ export default function BBQConstructor() {
         </div>
       </div>
 
-      {/* Доп. опции */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginTop: 24 }}>
-        <label>
-          <input type="checkbox" checked={hasRoof} onChange={(e) => setHasRoof(e.target.checked)} />
-          <span style={{ marginLeft: 8, fontWeight: "bold" }}>навес</span>
-        </label>
+      {/* Опции */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: 32 }}>
         <label>
           <input type="checkbox" checked={hasApron} onChange={(e) => setHasApron(e.target.checked)} />
-          <span style={{ marginLeft: 8, fontWeight: "bold" }}>фартук</span>
+          <span style={{ marginLeft: 8, fontWeight: "bold" }}>Фартук</span>
         </label>
+        {hasApron && (
+          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+            <input
+              type="number"
+              placeholder="Длина (мм)"
+              value={apronLength}
+              onChange={(e) => setApronLength(e.target.value)}
+            />
+            <input
+              type="number"
+              placeholder="Цена (₸/м)"
+              value={apronPrice}
+              onChange={(e) => setApronPrice(e.target.value)}
+            />
+          </div>
+        )}
+
         <label>
-          <span style={{ fontWeight: "bold", marginRight: 8 }}>длинна вытяжного зонта</span>
+          <input type="checkbox" checked={hasRoof} onChange={(e) => setHasRoof(e.target.checked)} />
+          <span style={{ marginLeft: 8, fontWeight: "bold" }}>Навес</span>
+        </label>
+        {hasRoof && (
           <input
             type="number"
-            placeholder="мм"
+            placeholder="Цена (₸)"
+            value={roofPrice}
+            onChange={(e) => setRoofPrice(e.target.value)}
+          />
+        )}
+
+        <label style={{ fontWeight: "bold" }}>Длина вытяжного зонта и цена:</label>
+        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+          <input
+            type="number"
+            placeholder="Длина (мм)"
             value={hoodLength}
             onChange={(e) => setHoodLength(e.target.value)}
-            style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid #ccc", width: "80px" }}
           />
-        </label>
+          <input
+            type="number"
+            placeholder="Цена (₸/м)"
+            value={hoodPrice}
+            onChange={(e) => setHoodPrice(e.target.value)}
+          />
+        </div>
+
+        {/* Цвет */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: 16 }}>
+          <strong>Цвет / покрытие:</strong>
+          <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <input
+              type="radio"
+              name="color"
+              value="Антрацит"
+              checked={color === "Антрацит"}
+              onChange={(e) => setColor(e.target.value)}
+            />
+            <img src="/colors/anthracite.png" alt="Антрацит" style={{ width: 24, height: 24, borderRadius: 4, border: "1px solid #ccc" }} />
+            Антрацит
+          </label>
+          <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <input
+              type="radio"
+              name="color"
+              value="Черная Шагрень"
+              checked={color === "Черная Шагрень"}
+              onChange={(e) => setColor(e.target.value)}
+            />
+            <img src="/colors/black-texture.png" alt="Черная Шагрень" style={{ width: 24, height: 24, borderRadius: 4, border: "1px solid #ccc" }} />
+            Черная Шагрень (Полимерная покраска)
+          </label>
+        </div>
       </div>
 
       {/* Итог */}
       <div style={{ marginTop: 32, fontWeight: "bold", fontSize: 20 }}>
         Общая длина: {totalLength} мм<br />
-        Стоимость комплекса: {totalPrice.toLocaleString()} ₸
+        Стоимость комплекса: {totalPrice.toLocaleString()} ₸<br />
+        {color && <>Цвет покрытия: {color}</>}
       </div>
     </div>
   );
