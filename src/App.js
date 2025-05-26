@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const modules = [
-  { id: "mangal_550", name: "Мангал 550", width: 520 },
+  { id: "mangal_550", name: "Мангал 550", width: 570 },
   { id: "mangal_700", name: "Мангал 700", width: 720 },
   { id: "mangal_1000", name: "Мангал 1000", width: 1020 },
   { id: "pech_480", name: "Печь 480", width: 500 },
@@ -34,10 +34,11 @@ export default function BBQConstructor() {
   const removeModule = (i) => setSelected(selected.filter((_, index) => index !== i));
   const reset = () => setSelected([]);
 
-  const totalLength = selected.reduce(
-    (sum, m, i) => sum + m.width + (i > 0 ? -40 : 0),
-    0
-  );
+  // ✅ Новый расчёт с трубами по краям
+  const totalLength =
+    (selected.length > 0 ? 40 : 0) +
+    selected.reduce((sum, m) => sum + m.width, 0) +
+    (selected.length > 0 ? 40 : 0);
 
   useEffect(() => {
     if (!containerRef.current || selected.length === 0) return;
@@ -62,9 +63,11 @@ export default function BBQConstructor() {
   };
 
   const basePrice = (totalLength / 1000) * 235000;
-  const roofPrice = hasRoof ? 300000 : 0;
-  const apronPrice = hasApron ? 150000 : 0;
+
+  const roofPrice = hasRoof ? 300000 : 0;   // 💰 здесь изменить цену за навес
+  const apronPrice = hasApron ? 150000 : 0; // 💰 здесь изменить цену за фартук
   const hoodPrice = (parseInt(hoodLength) || 0) / 1000 * 150000;
+
   const totalPrice = Math.round(basePrice + roofPrice + apronPrice + hoodPrice);
 
   return (
@@ -73,7 +76,6 @@ export default function BBQConstructor() {
         Конфигуратор комплекса
       </h1>
 
-      {/* Область визуализации */}
       <div
         ref={containerRef}
         style={{
@@ -145,7 +147,6 @@ export default function BBQConstructor() {
         </div>
       </div>
 
-      {/* Кнопки */}
       <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", marginBottom: "24px" }}>
         {Object.entries(categorized).map(([group, mods]) => (
           <div key={group} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
