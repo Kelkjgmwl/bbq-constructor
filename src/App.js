@@ -34,10 +34,10 @@ export default function BBQConstructor() {
   const removeModule = (i) => setSelected(selected.filter((_, index) => index !== i));
   const reset = () => setSelected([]);
 
-  // ✅ Новый расчёт с трубами по краям
+  // ✅ Новый расчёт с трубами по краям и между модулями
   const totalLength =
     (selected.length > 0 ? 40 : 0) +
-    selected.reduce((sum, m) => sum + m.width, 0) +
+    selected.reduce((sum, m, i) => sum + m.width + (i > 0 ? 40 : 0), 0) +
     (selected.length > 0 ? 40 : 0);
 
   useEffect(() => {
@@ -63,11 +63,9 @@ export default function BBQConstructor() {
   };
 
   const basePrice = (totalLength / 1000) * 235000;
-
   const roofPrice = hasRoof ? 300000 : 0;   // 💰 здесь изменить цену за навес
   const apronPrice = hasApron ? 150000 : 0; // 💰 здесь изменить цену за фартук
   const hoodPrice = (parseInt(hoodLength) || 0) / 1000 * 150000;
-
   const totalPrice = Math.round(basePrice + roofPrice + apronPrice + hoodPrice);
 
   return (
@@ -139,9 +137,7 @@ export default function BBQConstructor() {
               >
                 ✕
               </button>
-              <div style={{ textAlign: "center", fontSize: 16, fontWeight: 500, marginTop: 8 }}>
-                {mod.name}
-              </div>
+              {/* 🔇 Убрано имя модуля под картинкой */}
             </div>
           ))}
         </div>
