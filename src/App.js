@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-// Debounce utility to limit ResizeObserver calls
+// Утилита для debounce
 const debounce = (func, wait) => {
   let timeout;
   return (...args) => {
@@ -114,198 +114,206 @@ export default function BBQConstructor() {
   const totalPrice = Math.round(basePrice + apron + roof + hood + accessoriesTotal);
 
   return (
-    <div style={{ display: "flex", gap: 32, flexWrap: "wrap", padding: 24 }}>
-      <div style={{ flex: 1, minWidth: 300 }}>
-        {/* Visualization */}
-        <div
-          ref={containerRef}
+    <div style={{ padding: 24 }}>
+      {/* Кнопка сброса вверху справа */}
+      <div style={{ textAlign: "right", marginBottom: 16 }}>
+        <button
+          onClick={reset}
           style={{
-            resize: "both",
-            overflow: "auto",
-            padding: 16,
-            borderRadius: 16,
-            background: "#f7f7f7",
-            border: "1px solid #ddd",
-            marginBottom: 24,
-            minHeight: 300,
+            padding: "10px 16px",
+            borderRadius: "6px",
+            background: "red",
+            color: "white",
+            border: "none",
+            fontWeight: "600",
+            fontSize: "14px",
+            cursor: "pointer",
+          }}
+          aria-label="Сбросить все выборы"
+        >
+          Сбросить всё
+        </button>
+      </div>
+
+      {/* Визуализация */}
+      <div
+        ref={containerRef}
+        style={{
+          resize: "both",
+          overflow: "auto",
+          padding: 16,
+          borderRadius: 16,
+          background: "#f7f7f7",
+          border: "1px solid #ddd",
+          marginBottom: 24,
+          minHeight: 300,
+        }}
+      >
+        <div
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: "left bottom",
+            display: "flex",
+            alignItems: "flex-end",
+            height: 500,
           }}
         >
-          <div
-            style={{
-              transform: `scale(${scale})`,
-              transformOrigin: "left bottom",
-              display: "flex",
-              alignItems: "flex-end",
-              height: 500,
-            }}
-          >
-            {selected.map((mod, index) => (
-              <div
-                key={index}
+          {selected.map((mod, index) => (
+            <div
+              key={index}
+              style={{
+                marginLeft: index > 0 ? `${-pipeWidth * baseScale}px` : "0px",
+                zIndex: index,
+                width: `${mod.width * baseScale}px`,
+                height: "500px",
+                position: "relative",
+                flexShrink: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <img
+                src={`modules/${mod.id}.png`}
+                alt={mod.name}
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                onError={(e) => {
+                  e.target.src = "/fallback.png";
+                  e.target.alt = "Изображение не найдено";
+                }}
+              />
+              <button
+                onClick={() => removeModule(index)}
+                aria-label={`Удалить ${mod.name}`}
                 style={{
-                  marginLeft: index > 0 ? `${-pipeWidth * baseScale}px` : "0px",
-                  zIndex: index,
-                  width: `${mod.width * baseScale}px`,
-                  height: "500px",
-                  position: "relative",
-                  flexShrink: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
+                  position: "absolute",
+                  top: 4,
+                  right: 4,
+                  background: "red",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: 24,
+                  height: 24,
+                  fontSize: 14,
+                  cursor: "pointer",
                 }}
               >
-                <img
-                  src={`modules/${mod.id}.png`}
-                  alt={mod.name}
-                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                  onError={(e) => {
-                    e.target.src = "/fallback.png"; // Fallback image
-                    e.target.alt = "Image not found";
-                  }}
-                />
-                <button
-                  onClick={() => removeModule(index)}
-                  aria-label={`Remove ${mod.name}`}
-                  style={{
-                    position: "absolute",
-                    top: 4,
-                    right: 4,
-                    background: "red",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "50%",
-                    width: 24,
-                    height: 24,
-                    fontSize: 14,
-                    cursor: "pointer",
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Module Buttons */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 24 }}>
-          {Object.entries(categorized).map(([group, mods]) => (
-            <div key={group} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <strong>{group}</strong>
-              {mods.map((mod) => (
-                <button
-                  key={mod.id}
-                  onClick={() => addModule(mod)}
-                  style={{
-                    padding: "6px 10px",
-                    borderRadius: "6px",
-                    background: "#fff",
-                    border: "1px solid #ccc",
-                    cursor: "pointer",
-                    fontSize: "13px",
-                  }}
-                  aria-label={`Add ${mod.name}`}
-                >
-                  {mod.name}
-                </button>
-              ))}
+                ✕
+              </button>
             </div>
           ))}
-          <div>
-            <button
-              onClick={reset}
-              style={{
-                padding: "10px 16px",
-                borderRadius: "6px",
-                background: "red",
-                color: "white",
-                border: "none",
-                fontWeight: "600",
-                fontSize: "14px",
-                cursor: "pointer",
-                marginTop: 18,
-              }}
-              aria-label="Reset all selections"
-            >
-              Сбросить всё
-            </button>
-          </div>
         </div>
+      </div>
 
-        {/* Options and Parameters */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <label>
-            <input
-              type="checkbox"
-              checked={hasApron}
-              onChange={(e) => setHasApron(e.target.checked)}
-            />
-            <span style={{ marginLeft: 8, fontWeight: "bold" }}>Фартук</span>
-          </label>
-          {hasApron && (
-            <div style={{ display: "flex", gap: "12px" }}>
+      {/* Кнопки модулей */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 24 }}>
+        {Object.entries(categorized).map(([group, mods]) => (
+          <div key={group} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <strong>{group}</strong>
+            {mods.map((mod) => (
+              <button
+                key={mod.id}
+                onClick={() => addModule(mod)}
+                style={{
+                  padding: "6px 10px",
+                  borderRadius: "6px",
+                  background: "#fff",
+                  border: "1px solid #ccc",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                }}
+                aria-label={`Добавить ${mod.name}`}
+              >
+                {mod.name}
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Опции и параметры */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 32 }}>
+        <div style={{ flex: 1, minWidth: 300 }}>
+          <div style={{ marginBottom: 16 }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={hasApron}
+                onChange={(e) => setHasApron(e.target.checked)}
+              />
+              <span style={{ marginLeft: 8 }}>Фартук</span>
+            </label>
+            {hasApron && (
+              <div style={{ display: "flex", gap: "12px", marginTop: 8 }}>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Длина (мм)"
+                  value={apronLength}
+                  onChange={(e) => setApronLength(e.target.value)}
+                  style={{ width: 120 }}
+                />
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Цена (₸/м)"
+                  value={apronPrice}
+                  onChange={(e) => setApronPrice(e.target.value)}
+                  style={{ width: 120 }}
+                />
+              </div>
+            )}
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={hasRoof}
+                onChange={(e) => setHasRoof(e.target.checked)}
+              />
+              <span style={{ marginLeft: 8 }}>Навес</span>
+            </label>
+            {hasRoof && (
+              <div style={{ marginTop: 8 }}>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Цена (₸)"
+                  value={roofPrice}
+                  onChange={(e) => setRoofPrice(e.target.value)}
+                  style={{ width: 120 }}
+                />
+              </div>
+            )}
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <label>Вытяжной зонт:</label>
+            <div style={{ display: "flex", gap: "12px", marginTop: 8 }}>
               <input
                 type="number"
                 min="0"
                 placeholder="Длина (мм)"
-                value={apronLength}
-                onChange={(e) => setApronLength(e.target.value)}
+                value={hoodLength}
+                onChange={(e) => setHoodLength(e.target.value)}
                 style={{ width: 120 }}
               />
               <input
                 type="number"
                 min="0"
                 placeholder="Цена (₸/м)"
-                value={apronPrice}
-                onChange={(e) => setApronPrice(e.target.value)}
+                value={hoodPrice}
+                onChange={(e) => setHoodPrice(e.target.value)}
                 style={{ width: 120 }}
               />
             </div>
-          )}
-
-          <label>
-            <input
-              type="checkbox"
-              checked={hasRoof}
-              onChange={(e) => setHasRoof(e.target.checked)}
-            />
-            <span style={{ marginLeft: 8, fontWeight: "bold" }}>Навес</span>
-          </label>
-          {hasRoof && (
-            <input
-              type="number"
-              min="0"
-              placeholder="Цена (₸)"
-              value={roofPrice}
-              onChange={(e) => setRoofPrice(e.target.value)}
-              style={{ width: 120 }}
-            />
-          )}
-
-          <label style={{ fontWeight: "bold", marginTop: 8 }}>Вытяжной зонт:</label>
-          <div style={{ display: "flex", gap: "12px" }}>
-            <input
-              type="number"
-              min="0"
-              placeholder="Длина (мм)"
-              value={hoodLength}
-              onChange={(e) => setHoodLength(e.target.value)}
-              style={{ width: 120 }}
-            />
-            <input
-              type="number"
-              min="0"
-              placeholder="Цена (₸/м)"
-              value={hoodPrice}
-              onChange={(e) => setHoodPrice(e.target.value)}
-              style={{ width: 120 }}
-            />
           </div>
 
-          {/* Color / Coating */}
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginBottom: 16 }}>
             <strong>Цвет / покрытие:</strong>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
               <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <input
                   type="radio"
@@ -320,7 +328,7 @@ export default function BBQConstructor() {
                   style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }}
                   onError={(e) => {
                     e.target.src = "/fallback.png";
-                    e.target.alt = "Color image not found";
+                    e.target.alt = "Изображение цвета не найдено";
                   }}
                 />
                 Антрацит
@@ -339,7 +347,7 @@ export default function BBQConstructor() {
                   style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }}
                   onError={(e) => {
                     e.target.src = "/fallback.png";
-                    e.target.alt = "Color image not found";
+                    e.target.alt = "Изображение цвета не найдено";
                   }}
                 />
                 Черная Шагрень (Полимерная покраска)
@@ -347,8 +355,7 @@ export default function BBQConstructor() {
             </div>
           </div>
 
-          {/* Accessories */}
-          <div style={{ marginTop: 24 }}>
+          <div>
             <strong>Комплектующие:</strong>
             <label style={{ display: "block" }}>
               <input
@@ -385,33 +392,24 @@ export default function BBQConstructor() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Summary and Report */}
-      <div style={{ flexBasis: "100%", marginTop: 32, fontSize: 18 }}>
-        <div style={{ fontWeight: "bold", fontSize: 20 }}>
-          Общая длина: {totalLength} мм<br />
-          Общая стоимость: {totalPrice.toLocaleString()} ₸<br />
-        </div>
-        {color && (
-          <div>
-            Цвет покрытия: <strong>{color}</strong>
+        {/* Итог и отчет */}
+        <div style={{ flexBasis: "100%", marginTop: 32, fontSize: 18 }}>
+          <div style={{ fontWeight: "bold", fontSize: 20 }}>
+            Общая длина: {totalLength} мм<br />
+            Общая стоимость: {totalPrice.toLocaleString()} ₸<br />
           </div>
-        )}
-
-        <div style={{ marginTop: 12 }}>
-          <strong>Разбивка стоимости:</strong>
-          <ul style={{ margin: 0, paddingLeft: 20 }}>
-            <li>Модули: {Math.round(basePrice).toLocaleString()} ₸</li>
-            {hasApron && apron > 0 && <li>Фартук: {Math.round(apron).toLocaleString()} ₸</li>}
-            {hasRoof && roof > 0 && <li>Навес: {roof.toLocaleString()} ₸</li>}
-            {hood > 0 && <li>Вытяжной зонт: {Math.round(hood).toLocaleString()} ₸</li>}
-            {accessories.map((a, i) => (
-              <li key={i}>
-                {a.name}: {a.price.toLocaleString()} ₸
-              </li>
-            ))}
-          </ul>
+          {color && (
+            <div>
+              Цвет покрытия: <strong>{color}</strong>
+            </div>
+          )}
+          <div style={{ marginTop: 12 }}>
+            <strong>Разбивка стоимости:</strong>
+            <ul style={{ margin: 0, paddingLeft: 20 }}>
+              <li>Модули: {Math.round(basePrice).toLocaleString()} ₸</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
