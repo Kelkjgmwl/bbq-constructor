@@ -232,6 +232,7 @@ export default function BBQConstructor() {
             placeholder="Цена (₸)"
             value={roofPrice}
             onChange={(e) => setRoofPrice(e.target.value)}
+            style={{ width: "120px" }}
           />
         )}
 
