@@ -1,7 +1,6 @@
-// Конфигуратор BEL BBQ — с перетаскиванием, удалением, экспортом в PNG и PDF, и ФИО клиента
+// Конфигуратор BEL BBQ — экспорт в PNG в формате A4, без PDF, с перетаскиванием и ФИО
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 
 const modules = [
   { id: "mangal_550", name: "Мангал 550", width: 570 },
@@ -62,26 +61,22 @@ export default function BBQConstructor() {
     return () => resizeObserver.disconnect();
   }, [selected, totalLength]);
 
-  const exportFullPageAsImage = async () => {
+  const exportAsImage = async () => {
     if (!fullRef.current) return;
-    const canvas = await html2canvas(fullRef.current);
+    const canvas = await html2canvas(fullRef.current, {
+      scale: 2,
+      useCORS: true,
+      windowWidth: 1123, // A4 width in px @ 96dpi
+      windowHeight: 794,
+    });
     const link = document.createElement("a");
     link.download = `bbq-order-${Date.now()}.png`;
-    link.href = canvas.toDataURL();
+    link.href = canvas.toDataURL("image/png");
     link.click();
   };
 
-  const exportFullPageAsPDF = async () => {
-    if (!fullRef.current) return;
-    const canvas = await html2canvas(fullRef.current);
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width, canvas.height] });
-    pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-    pdf.save(`bbq-order-${Date.now()}.pdf`);
-  };
-
   return (
-    <div ref={fullRef} style={{ padding: 24, fontFamily: "sans-serif", maxWidth: "100vw" }}>
+    <div ref={fullRef} style={{ padding: 24, fontFamily: "sans-serif", maxWidth: "100vw", background: "white" }}>
       <h1 style={{ fontSize: 28, marginBottom: 16 }}>Конфигуратор комплекса BEL BBQ</h1>
 
       <div
@@ -150,14 +145,9 @@ export default function BBQConstructor() {
           Дата оформления:
           <input type="datetime-local" value={clientDate} onChange={(e) => setClientDate(e.target.value)} style={{ width: "100%", padding: 8, marginTop: 4 }} />
         </label>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <button onClick={exportFullPageAsImage} style={{ background: "#007bff", color: "white", padding: "10px 16px", border: "none", borderRadius: 6 }}>
-            Сохранить как PNG
-          </button>
-          <button onClick={exportFullPageAsPDF} style={{ background: "#28a745", color: "white", padding: "10px 16px", border: "none", borderRadius: 6 }}>
-            Сохранить как PDF
-          </button>
-        </div>
+        <button onClick={exportAsImage} style={{ background: "#007bff", color: "white", padding: "10px 16px", border: "none", borderRadius: 6 }}>
+          Сохранить страницу A4 (PNG)
+        </button>
       </div>
     </div>
   );
