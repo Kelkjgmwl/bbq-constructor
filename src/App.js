@@ -478,5 +478,6 @@ export default function BBQConstructor() {
           </button>
         </div>
       </div>
+    </div>
   );
 }
