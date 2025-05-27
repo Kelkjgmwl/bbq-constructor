@@ -1,12 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-
-const debounce = (func, wait) => {
-  let timeout;
-  return (...args) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-};
+import html2canvas from "html2canvas";
 
 const modules = [
   { id: "mangal_550", name: "Мангал 550", width: 570 },
@@ -50,7 +43,13 @@ export default function BBQConstructor() {
     "80": false,
   });
 
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientCity, setClientCity] = useState("");
+  const [clientDate, setClientDate] = useState("");
+
   const containerRef = useRef(null);
+  const exportRef = useRef(null);
   const baseScale = 0.4;
   const pipeWidth = 40;
 
@@ -66,17 +65,26 @@ export default function BBQConstructor() {
   useEffect(() => {
     if (!containerRef.current || selected.length === 0) return;
 
-    const handleResize = debounce((entries) => {
+    const resizeObserver = new ResizeObserver((entries) => {
       const containerWidth = entries[0].contentRect.width;
       const neededWidth = totalLength * baseScale;
       const newScale = Math.min(1, Math.max(0.25, containerWidth / neededWidth));
       setScale(newScale);
-    }, 100);
+    });
 
-    const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(containerRef.current);
     return () => resizeObserver.disconnect();
   }, [selected, totalLength]);
+
+  const handleExport = async () => {
+    if (!exportRef.current) return;
+    const canvas = await html2canvas(exportRef.current, { scale: 2 });
+    const link = document.createElement("a");
+    link.download = `bbq_config_${clientName || "client"}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  };
+
   const categorized = {
     Мангалы: modules.filter((m) => m.id.includes("mangal")),
     Печи: modules.filter((m) => m.id.includes("pech")),
@@ -87,13 +95,13 @@ export default function BBQConstructor() {
 
   const basePrice = (totalLength / 1000) * 235000;
   const apron =
-    hasApron && apronLength && apronPrice && !isNaN(apronLength) && !isNaN(apronPrice)
-      ? (parseInt(apronLength, 10) / 1000) * parseInt(apronPrice, 10)
+    hasApron && apronLength && apronPrice
+      ? (parseInt(apronLength) / 1000) * parseInt(apronPrice)
       : 0;
-  const roof = hasRoof && roofPrice && !isNaN(roofPrice) ? parseInt(roofPrice, 10) : 0;
+  const roof = hasRoof && roofPrice ? parseInt(roofPrice) : 0;
   const hood =
-    hoodLength && hoodPrice && !isNaN(hoodLength) && !isNaN(hoodPrice)
-      ? (parseInt(hoodLength, 10) / 1000) * parseInt(hoodPrice, 10)
+    hoodLength && hoodPrice
+      ? (parseInt(hoodLength) / 1000) * parseInt(hoodPrice)
       : 0;
 
   const accessories = [
@@ -103,333 +111,284 @@ export default function BBQConstructor() {
     ...Object.entries(cauldrons)
       .filter(([_, val]) => val)
       .map(([size]) => {
-        const prices = {
-          "12": 22000,
-          "18": 28000,
-          "22": 35000,
-          "50": 65000,
-          "80": 85000,
-        };
+        const prices = { "12": 22000, "18": 28000, "22": 35000, "50": 65000, "80": 85000 };
         return { name: `Казан на ${size} л`, price: prices[size] };
       }),
   ].filter(Boolean);
 
   const accessoriesTotal = accessories.reduce((sum, acc) => sum + acc.price, 0);
   const totalPrice = Math.round(basePrice + apron + roof + hood + accessoriesTotal);
-
   return (
-    <div style={{ padding: 24 }}>
-      {/* СБРОС */}
-      <div style={{ textAlign: "right", marginBottom: 16 }}>
-        <button
-          onClick={reset}
-          style={{
-            padding: "10px 16px",
-            borderRadius: "6px",
-            background: "red",
-            color: "white",
-            border: "none",
-            fontWeight: "600",
-            fontSize: "14px",
-            cursor: "pointer",
-          }}
-          aria-label="Сбросить все выборы"
-        >
-          Сбросить всё
-        </button>
-      </div>
-
-      {/* ВИЗУАЛИЗАЦИЯ */}
-      <div
-        ref={containerRef}
-        style={{
-          resize: "both",
-          overflow: "auto",
-          padding: 16,
-          borderRadius: 16,
-          background: "#f7f7f7",
-          border: "1px solid #ddd",
-          marginBottom: 24,
-          minHeight: 300,
-        }}
-      >
+    <div style={{ display: "flex", gap: 32, flexWrap: "wrap", padding: 24 }} ref={exportRef}>
+      {/* ЛЕВАЯ КОЛОНКА */}
+      <div style={{ flex: 1, minWidth: 300 }}>
+        {/* ВИЗУАЛИЗАЦИЯ */}
         <div
+          ref={containerRef}
           style={{
-            transform: `scale(${scale})`,
-            transformOrigin: "left bottom",
-            display: "flex",
-            alignItems: "flex-end",
-            height: 500,
+            resize: "both",
+            overflow: "auto",
+            padding: 16,
+            borderRadius: 16,
+            background: "#f7f7f7",
+            border: "1px solid #ddd",
+            marginBottom: 24,
+            minHeight: 300,
           }}
         >
-          {selected.map((mod, index) => (
-            <div
-              key={index}
-              style={{
-                marginLeft: index > 0 ? `${-pipeWidth * baseScale}px` : "0px",
-                zIndex: index,
-                width: `${mod.width * baseScale}px`,
-                height: "500px",
-                position: "relative",
-                flexShrink: 0,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <img
-                src={`modules/${mod.id}.png`}
-                alt={mod.name}
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                onError={(e) => {
-                  e.target.src = "/fallback.png";
-                  e.target.alt = "Изображение не найдено";
-                }}
-              />
-              <button
-                onClick={() => removeModule(index)}
-                aria-label={`Удалить ${mod.name}`}
+          <div
+            style={{
+              transform: `scale(${scale})`,
+              transformOrigin: "left bottom",
+              display: "flex",
+              alignItems: "flex-end",
+              height: 500,
+            }}
+          >
+            {selected.map((mod, index) => (
+              <div
+                key={index}
                 style={{
-                  position: "absolute",
-                  top: 4,
-                  right: 4,
-                  background: "red",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "50%",
-                  width: 24,
-                  height: 24,
-                  fontSize: 14,
-                  cursor: "pointer",
+                  marginLeft: index > 0 ? `${-pipeWidth * baseScale}px` : "0px",
+                  zIndex: index,
+                  width: `${mod.width * baseScale}px`,
+                  height: "500px",
+                  position: "relative",
+                  flexShrink: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
                 }}
               >
-                ✕
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* КНОПКИ МОДУЛЕЙ */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 24 }}>
-        {Object.entries(categorized).map(([group, mods]) => (
-          <div key={group} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <strong>{group}</strong>
-            {mods.map((mod) => (
-              <button
-                key={mod.id}
-                onClick={() => addModule(mod)}
-                style={{
-                  padding: "6px 10px",
-                  borderRadius: "6px",
-                  background: "#fff",
-                  border: "1px solid #ccc",
-                  cursor: "pointer",
-                  fontSize: "13px",
-                }}
-                aria-label={`Добавить ${mod.name}`}
-              >
-                {mod.name}
-              </button>
+                <img
+                  src={`modules/${mod.id}.png`}
+                  alt={mod.name}
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                  onError={(e) => {
+                    e.target.src = "/fallback.png";
+                    e.target.alt = "Изображение не найдено";
+                  }}
+                />
+                <button
+                  onClick={() => removeModule(index)}
+                  style={{
+                    position: "absolute",
+                    top: 4,
+                    right: 4,
+                    background: "red",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: 24,
+                    height: 24,
+                    fontSize: 14,
+                    cursor: "pointer",
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
             ))}
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* ОПЦИИ И КОМПЛЕКТУЮЩИЕ */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 32 }}>
-        {/* Левая колонка — параметры */}
-        <div style={{ flex: 1, minWidth: 300 }}>
-          <div style={{ marginBottom: 16 }}>
+        {/* КНОПКИ МОДУЛЕЙ */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 24 }}>
+          {Object.entries(categorized).map(([group, mods]) => (
+            <div key={group} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <strong>{group}</strong>
+              {mods.map((mod) => (
+                <button
+                  key={mod.id}
+                  onClick={() => addModule(mod)}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "6px",
+                    background: "#fff",
+                    border: "1px solid #ccc",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                  }}
+                >
+                  {mod.name}
+                </button>
+              ))}
+            </div>
+          ))}
+          <div>
+            <button
+              onClick={reset}
+              style={{
+                padding: "10px 16px",
+                borderRadius: "6px",
+                background: "red",
+                color: "white",
+                border: "none",
+                fontWeight: "600",
+                fontSize: "14px",
+                cursor: "pointer",
+                marginTop: 18,
+              }}
+            >
+              Сбросить всё
+            </button>
+          </div>
+        </div>
+        {/* ОПЦИИ И КОМПЛЕКТУЮЩИЕ */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 32, alignItems: "flex-start" }}>
+          {/* ПАРАМЕТРЫ — левая часть */}
+          <div style={{ flex: 1, minWidth: 300 }}>
             <label>
-              <input
-                type="checkbox"
-                checked={hasApron}
-                onChange={(e) => setHasApron(e.target.checked)}
-              />
-              <span style={{ marginLeft: 8 }}>Фартук</span>
+              <input type="checkbox" checked={hasApron} onChange={(e) => setHasApron(e.target.checked)} />
+              <span style={{ marginLeft: 8, fontWeight: "bold" }}>Фартук</span>
             </label>
             {hasApron && (
-              <div style={{ display: "flex", gap: "12px", marginTop: 8 }}>
+              <div style={{ display: "flex", gap: "12px" }}>
                 <input
                   type="number"
-                  min="0"
                   placeholder="Длина (мм)"
                   value={apronLength}
                   onChange={(e) => setApronLength(e.target.value)}
-                  style={{ width: 120 }}
                 />
                 <input
                   type="number"
-                  min="0"
                   placeholder="Цена (₸/м)"
                   value={apronPrice}
                   onChange={(e) => setApronPrice(e.target.value)}
-                  style={{ width: 120 }}
                 />
               </div>
             )}
-          </div>
 
-          <div style={{ marginBottom: 16 }}>
             <label>
-              <input
-                type="checkbox"
-                checked={hasRoof}
-                onChange={(e) => setHasRoof(e.target.checked)}
-              />
-              <span style={{ marginLeft: 8 }}>Навес</span>
+              <input type="checkbox" checked={hasRoof} onChange={(e) => setHasRoof(e.target.checked)} />
+              <span style={{ marginLeft: 8, fontWeight: "bold" }}>Навес</span>
             </label>
             {hasRoof && (
-              <div style={{ marginTop: 8 }}>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="Цена (₸)"
-                  value={roofPrice}
-                  onChange={(e) => setRoofPrice(e.target.value)}
-                  style={{ width: 120 }}
-                />
-              </div>
-            )}
-          </div>
-
-          <div style={{ marginBottom: 16 }}>
-            <label>Вытяжной зонт:</label>
-            <div style={{ display: "flex", gap: "12px", marginTop: 8 }}>
               <input
                 type="number"
-                min="0"
+                placeholder="Цена (₸)"
+                value={roofPrice}
+                onChange={(e) => setRoofPrice(e.target.value)}
+                style={{ width: 120 }}
+              />
+            )}
+
+            <label style={{ fontWeight: "bold", marginTop: 8 }}>Вытяжной зонт:</label>
+            <div style={{ display: "flex", gap: "12px" }}>
+              <input
+                type="number"
                 placeholder="Длина (мм)"
                 value={hoodLength}
                 onChange={(e) => setHoodLength(e.target.value)}
-                style={{ width: 120 }}
               />
               <input
                 type="number"
-                min="0"
                 placeholder="Цена (₸/м)"
                 value={hoodPrice}
                 onChange={(e) => setHoodPrice(e.target.value)}
-                style={{ width: 120 }}
               />
             </div>
+
+            <div style={{ marginTop: 16 }}>
+              <strong>Цвет / покрытие:</strong>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <input
+                    type="radio"
+                    name="color"
+                    value="Антрацит"
+                    checked={color === "Антрацит"}
+                    onChange={(e) => setColor(e.target.value)}
+                  />
+                  <img src="/colors/anthracite.png" alt="Антрацит" style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }} />
+                  Антрацит
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <input
+                    type="radio"
+                    name="color"
+                    value="Черная Шагрень"
+                    checked={color === "Черная Шагрень"}
+                    onChange={(e) => setColor(e.target.value)}
+                  />
+                  <img src="/colors/black-texture.png" alt="Черная Шагрень" style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }} />
+                  Черная Шагрень (Полимерная покраска)
+                </label>
+              </div>
+            </div>
           </div>
 
-          <div style={{ marginBottom: 16 }}>
-            <strong>Цвет / покрытие:</strong>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <input
-                  type="radio"
-                  name="color"
-                  value="Антрацит"
-                  checked={color === "Антрацит"}
-                  onChange={(e) => setColor(e.target.value)}
-                />
-                <img
-                  src="/colors/anthracite.png"
-                  alt="Антрацит"
-                  style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }}
-                />
-                Антрацит
-              </label>
-              <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <input
-                  type="radio"
-                  name="color"
-                  value="Черная Шагрень"
-                  checked={color === "Черная Шагрень"}
-                  onChange={(e) => setColor(e.target.value)}
-                />
-                <img
-                  src="/colors/black-texture.png"
-                  alt="Черная Шагрень"
-                  style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }}
-                />
-                Черная Шагрень (Полимерная покраска)
-              </label>
+          {/* КОМПЛЕКТУЮЩИЕ — правая часть */}
+          <div style={{ flex: 1, minWidth: 300, maxWidth: 360 }}>
+            <strong>Комплектующие:</strong>
+            <label><input type="checkbox" checked={glassDoor} onChange={(e) => setGlassDoor(e.target.checked)} /> Дверца со стеклом (42 000 ₸)</label>
+            <label><input type="checkbox" checked={skewers} onChange={(e) => setSkewers(e.target.checked)} /> Шампуры (10 000 ₸)</label>
+            <label><input type="checkbox" checked={tools} onChange={(e) => setTools(e.target.checked)} /> Совок / Кочерга (14 000 ₸)</label>
+            <div style={{ marginTop: 8 }}>
+              <strong>Казаны:</strong><br />
+              {["12", "18", "22", "50", "80"].map((size) => (
+                <label key={size} style={{ display: "block" }}>
+                  <input
+                    type="checkbox"
+                    checked={cauldrons[size]}
+                    onChange={(e) => setCauldrons({ ...cauldrons, [size]: e.target.checked })}
+                  /> Казан {size} л
+                </label>
+              ))}
             </div>
           </div>
         </div>
-        {/* Правая колонка — комплектующие */}
-        <div style={{ flex: 1, minWidth: 300 }}>
-          <strong>Комплектующие:</strong>
-          <label style={{ display: "block" }}>
-            <input
-              type="checkbox"
-              checked={glassDoor}
-              onChange={(e) => setGlassDoor(e.target.checked)}
-            />{" "}
-            Дверца со стеклом (42 000 ₸)
-          </label>
-          <label style={{ display: "block" }}>
-            <input
-              type="checkbox"
-              checked={skewers}
-              onChange={(e) => setSkewers(e.target.checked)}
-            />{" "}
-            Шампуры (10 000 ₸)
-          </label>
-          <label style={{ display: "block" }}>
-            <input
-              type="checkbox"
-              checked={tools}
-              onChange={(e) => setTools(e.target.checked)}
-            />{" "}
-            Совок / Кочерга (14 000 ₸)
-          </label>
-          <div style={{ marginTop: 8 }}>
-            <strong>Казаны:</strong>
-            {["12", "18", "22", "50", "80"].map((size) => (
-              <label key={size} style={{ display: "block" }}>
-                <input
-                  type="checkbox"
-                  checked={cauldrons[size]}
-                  onChange={(e) =>
-                    setCauldrons({ ...cauldrons, [size]: e.target.checked })
-                  }
-                />{" "}
-                Казан {size} л
-              </label>
-            ))}
+
+        {/* ИНФОРМАЦИЯ О КЛИЕНТЕ */}
+        <div style={{ marginTop: 48 }}>
+          <strong>Информация о клиенте:</strong>
+          <div style={{ display: "flex", flexDirection: "column", maxWidth: 300, gap: 8 }}>
+            <input placeholder="ФИО клиента" value={clientName} onChange={(e) => setClientName(e.target.value)} />
+            <input placeholder="Город" value={clientCity} onChange={(e) => setClientCity(e.target.value)} />
+            <input placeholder="Телефон" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} />
+            <input type="date" placeholder="Дата" value={clientDate} onChange={(e) => setClientDate(e.target.value)} />
+          </div>
+          <p style={{ marginTop: 24 }}>Подпись клиента: _______________________</p>
+        </div>
+
+        {/* ИТОГ */}
+        <div style={{ flexBasis: "100%", marginTop: 32, fontSize: 18 }}>
+          <div style={{ fontWeight: "bold", fontSize: 20 }}>
+            Общая длина: {totalLength} мм<br />
+            Общая стоимость: {totalPrice.toLocaleString()} ₸<br />
+          </div>
+          {color && <div>Цвет покрытия: <strong>{color}</strong></div>}
+          <div style={{ marginTop: 12 }}>
+            <strong>Разбивка стоимости:</strong>
+            <ul style={{ margin: 0, paddingLeft: 20 }}>
+              <li>Модули: {basePrice.toLocaleString()} ₸</li>
+              {hasApron && apron > 0 && <li>Фартук: {Math.round(apron).toLocaleString()} ₸</li>}
+              {hasRoof && roof > 0 && <li>Навес: {roof.toLocaleString()} ₸</li>}
+              {hood > 0 && <li>Вытяжной зонт: {Math.round(hood).toLocaleString()} ₸</li>}
+              {accessories.map((a, i) => (
+                <li key={i}>{a.name}: {a.price.toLocaleString()} ₸</li>
+              ))}
+            </ul>
           </div>
         </div>
-      </div>
 
-      {/* ИТОГ */}
-      <div style={{ flexBasis: "100%", marginTop: 32, fontSize: 18 }}>
-        <div style={{ fontWeight: "bold", fontSize: 20 }}>
-          Общая длина: {totalLength} мм
-          <br />
-          Общая стоимость: {totalPrice.toLocaleString()} ₸
-          <br />
-        </div>
-        {color && (
-          <div>
-            Цвет покрытия: <strong>{color}</strong>
-          </div>
-        )}
-
-        <div style={{ marginTop: 12 }}>
-          <strong>Разбивка стоимости:</strong>
-          <ul style={{ margin: 0, paddingLeft: 20 }}>
-            <li>Модули: {Math.round(basePrice).toLocaleString()} ₸</li>
-            {hasApron && apron > 0 && (
-              <li>Фартук: {Math.round(apron).toLocaleString()} ₸</li>
-            )}
-            {hasRoof && roof > 0 && <li>Навес: {roof.toLocaleString()} ₸</li>}
-            {hood > 0 && (
-              <li>Вытяжной зонт: {Math.round(hood).toLocaleString()} ₸</li>
-            )}
-            {accessories.map((a, i) => (
-              <li key={i}>
-                {a.name}: {a.price.toLocaleString()} ₸
-              </li>
-            ))}
-          </ul>
+        {/* КНОПКА ЭКСПОРТА */}
+        <div style={{ marginTop: 32 }}>
+          <button
+            onClick={handleExport}
+            style={{
+              padding: "12px 24px",
+              fontSize: 16,
+              background: "#4CAF50",
+              color: "white",
+              border: "none",
+              borderRadius: 6,
+              cursor: "pointer",
+            }}
+          >
+            Сохранить конфигурацию в PNG
+          </button>
         </div>
       </div>
-    </div>
   );
 }
-
