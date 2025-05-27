@@ -34,12 +34,7 @@ export default function BBQConstructor() {
   const [selected, setSelected] = useState([]);
   const [scale, setScale] = useState(1);
   const [hasApron, setHasApron] = useState(false);
-  const [apronLength, setApronLength] = useState("");
-  const [apronPrice, setApronPrice] = useState("");
   const [hasRoof, setHasRoof] = useState(false);
-  const [roofPrice, setRoofPrice] = useState("");
-  const [hoodLength, setHoodLength] = useState("");
-  const [hoodPrice, setHoodPrice] = useState("");
   const [color, setColor] = useState("");
   const [glassDoor, setGlassDoor] = useState(false);
   const [skewers, setSkewers] = useState(false);
@@ -103,18 +98,9 @@ export default function BBQConstructor() {
   };
 
   const basePrice = (totalLength / 1000) * 235000;
-  const apron =
-    hasApron && apronLength && apronPrice && !isNaN(parseInt(apronLength)) && !isNaN(parseInt(apronPrice))
-      ? (parseInt(apronLength) / 1000) * parseInt(apronPrice)
-      : 0;
-  const roof =
-    hasRoof && roofPrice && !isNaN(parseInt(roofPrice))
-      ? parseInt(roofPrice)
-      : 0;
-  const hood =
-    hoodLength && hoodPrice && !isNaN(parseInt(hoodLength)) && !isNaN(parseInt(hoodPrice))
-      ? (parseInt(hoodLength) / 1000) * parseInt(hoodPrice)
-      : 0;
+  const apron = hasApron ? (totalLength / 1000) * 35000 : 0; // Фартук: 35,000 ₸ за метр
+  const hood = hasRoof ? (totalLength / 1000) * 65000 : 0; // Вытяжной зонт: 65,000 ₸ за метр
+
   const accessories = [
     glassDoor && { name: "Дверца со стеклом", price: 42000 },
     skewers && { name: "Шампуры", price: 10000 },
@@ -134,7 +120,7 @@ export default function BBQConstructor() {
   ].filter(Boolean);
 
   const accessoriesTotal = accessories.reduce((sum, acc) => sum + acc.price, 0);
-  const totalPrice = Math.round(basePrice + apron + roof + hood + accessoriesTotal);
+  const totalPrice = Math.round(basePrice + apron + hood + accessoriesTotal);
 
   return (
     <div
@@ -274,24 +260,6 @@ export default function BBQConstructor() {
               />
               <span style={{ marginLeft: 8, fontWeight: "bold" }}>Фартук</span>
             </label>
-            {hasApron && (
-              <div style={{ display: "flex", gap: "12px" }}>
-                <input
-                  type="number"
-                  placeholder="Длина (мм)"
-                  value={apronLength}
-                  onChange={(e) => setApronLength(e.target.value)}
-                  style={{ width: 120 }}
-                />
-                <input
-                  type="number"
-                  placeholder="Цена (₸/м)"
-                  value={apronPrice}
-                  onChange={(e) => setApronPrice(e.target.value)}
-                  style={{ width: 120 }}
-                />
-              </div>
-            )}
 
             <label>
               <input
@@ -299,35 +267,8 @@ export default function BBQConstructor() {
                 checked={hasRoof}
                 onChange={(e) => setHasRoof(e.target.checked)}
               />
-              <span style={{ marginLeft: 8, fontWeight: "bold" }}>Навес</span>
+              <span style={{ marginLeft: 8, fontWeight: "bold" }}>Вытяжной зонт</span>
             </label>
-            {hasRoof && (
-              <input
-                type="number"
-                placeholder="Цена (₸)"
-                value={roofPrice}
-                onChange={(e) => setRoofPrice(e.target.value)}
-                style={{ width: 120 }}
-              />
-            )}
-
-            <label style={{ fontWeight: "bold", marginTop: 8 }}>Вытяжной зонт:</label>
-            <div style={{ display: "flex", gap: "12px" }}>
-              <input
-                type="number"
-                placeholder="Длина (мм)"
-                value={hoodLength}
-                onChange={(e) => setHoodLength(e.target.value)}
-                style={{ width: 120 }}
-              />
-              <input
-                type="number"
-                placeholder="Цена (₸/м)"
-                value={hoodPrice}
-                onChange={(e) => setHoodPrice(e.target.value)}
-                style={{ width: 120 }}
-              />
-            </div>
 
             {/* Цвет / покрытие */}
             <div style={{ marginTop: 16 }}>
@@ -373,42 +314,45 @@ export default function BBQConstructor() {
                 </label>
               </div>
             </div>
-          </div>
-          {/* Правая колонка — комплектующие */}
-          <div style={{ flex: 1, minWidth: 300, maxWidth: 360 }}>
-            <strong>Комплектующие:</strong>
-            <label>
-              <input
-                type="checkbox"
-                checked={glassDoor}
-                onChange={(e) => setGlassDoor(e.target.checked)}
-              /> Дверца со стеклом (42 000 ₸)
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={skewers}
-                onChange={(e) => setSkewers(e.target.checked)}
-              /> Шампуры (10 000 ₸)
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={tools}
-                onChange={(e) => setTools(e.target.checked)}
-              /> Совок / Кочерга (14 000 ₸)
-            </label>
-            <div style={{ marginTop: 8 }}>
-              <strong>Казаны:</strong><br />
-              {["12", "18", "22", "50", "80"].map((size) => (
-                <label key={size} style={{ display: "block" }}>
+
+            {/* КОМПЛЕКТУЮЩИЕ — в левой колонке */}
+            <div style={{ marginTop: 24 }}>
+              <strong>Комплектующие:</strong>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <label>
                   <input
                     type="checkbox"
-                    checked={cauldrons[size]}
-                    onChange={(e) => setCauldrons({ ...cauldrons, [size]: e.target.checked })}
-                  /> Казан {size} л
+                    checked={glassDoor}
+                    onChange={(e) => setGlassDoor(e.target.checked)}
+                  /> Дверца со стеклом (42 000 ₸)
                 </label>
-              ))}
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={skewers}
+                    onChange={(e) => setSkewers(e.target.checked)}
+                  /> Шампуры (10 000 ₸)
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={tools}
+                    onChange={(e) => setTools(e.target.checked)}
+                  /> Совок / Кочерга (14 000 ₸)
+                </label>
+                <div style={{ marginTop: 8 }}>
+                  <strong>Казаны:</strong><br />
+                  {["12", "18", "22", "50", "80"].map((size) => (
+                    <label key={size} style={{ display: "block" }}>
+                      <input
+                        type="checkbox"
+                        checked={cauldrons[size]}
+                        onChange={(e) => setCauldrons({ ...cauldrons, [size]: e.target.checked })}
+                      /> Казан {size} л
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -458,8 +402,7 @@ export default function BBQConstructor() {
             <ul style={{ margin: 0, paddingLeft: 20 }}>
               <li>Модули: {Math.round(basePrice).toLocaleString()} ₸</li>
               {hasApron && apron > 0 && <li>Фартук: {Math.round(apron).toLocaleString()} ₸</li>}
-              {hasRoof && roof > 0 && <li>Навес: {roof.toLocaleString()} ₸</li>}
-              {hood > 0 && <li>Вытяжной зонт: {Math.round(hood).toLocaleString()} ₸</li>}
+              {hasRoof && hood > 0 && <li>Вытяжной зонт: {Math.round(hood).toLocaleString()} ₸</li>}
               {accessories.map((a, i) => (
                 <li key={i}>{a.name}: {a.price.toLocaleString()} ₸</li>
               ))}
