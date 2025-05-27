@@ -472,7 +472,7 @@ export default function BBQConstructor() {
               borderRadius: 6,
               cursor: "pointer",
             }}
-            aria-label="Сохранить конфигурацию в PNG"
+            aria-label="Сохранить конфигурацию для Печати"
           >
             Сохранить конфигурацию в PNG
           </button>
