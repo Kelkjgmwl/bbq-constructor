@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-// Утилита для debounce
 const debounce = (func, wait) => {
   let timeout;
   return (...args) => {
@@ -78,7 +77,6 @@ export default function BBQConstructor() {
     resizeObserver.observe(containerRef.current);
     return () => resizeObserver.disconnect();
   }, [selected, totalLength]);
-
   const categorized = {
     Мангалы: modules.filter((m) => m.id.includes("mangal")),
     Печи: modules.filter((m) => m.id.includes("pech")),
@@ -105,7 +103,13 @@ export default function BBQConstructor() {
     ...Object.entries(cauldrons)
       .filter(([_, val]) => val)
       .map(([size]) => {
-        const prices = { "12": 22000, "18": 28000, "22": 35000, "50": 65000, "80": 85000 };
+        const prices = {
+          "12": 22000,
+          "18": 28000,
+          "22": 35000,
+          "50": 65000,
+          "80": 85000,
+        };
         return { name: `Казан на ${size} л`, price: prices[size] };
       }),
   ].filter(Boolean);
@@ -115,7 +119,7 @@ export default function BBQConstructor() {
 
   return (
     <div style={{ padding: 24 }}>
-      {/* Кнопка сброса вверху справа */}
+      {/* СБРОС */}
       <div style={{ textAlign: "right", marginBottom: 16 }}>
         <button
           onClick={reset}
@@ -135,7 +139,7 @@ export default function BBQConstructor() {
         </button>
       </div>
 
-      {/* Визуализация */}
+      {/* ВИЗУАЛИЗАЦИЯ */}
       <div
         ref={containerRef}
         style={{
@@ -205,8 +209,7 @@ export default function BBQConstructor() {
           ))}
         </div>
       </div>
-
-      {/* Кнопки модулей */}
+      {/* КНОПКИ МОДУЛЕЙ */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 24 }}>
         {Object.entries(categorized).map(([group, mods]) => (
           <div key={group} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -232,8 +235,9 @@ export default function BBQConstructor() {
         ))}
       </div>
 
-      {/* Опции и параметры */}
+      {/* ОПЦИИ И КОМПЛЕКТУЮЩИЕ */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 32 }}>
+        {/* Левая колонка — параметры */}
         <div style={{ flex: 1, minWidth: 300 }}>
           <div style={{ marginBottom: 16 }}>
             <label>
@@ -326,10 +330,6 @@ export default function BBQConstructor() {
                   src="/colors/anthracite.png"
                   alt="Антрацит"
                   style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }}
-                  onError={(e) => {
-                    e.target.src = "/fallback.png";
-                    e.target.alt = "Изображение цвета не найдено";
-                  }}
                 />
                 Антрацит
               </label>
@@ -345,73 +345,91 @@ export default function BBQConstructor() {
                   src="/colors/black-texture.png"
                   alt="Черная Шагрень"
                   style={{ width: 24, height: 24, border: "1px solid #ccc", borderRadius: 4 }}
-                  onError={(e) => {
-                    e.target.src = "/fallback.png";
-                    e.target.alt = "Изображение цвета не найдено";
-                  }}
                 />
                 Черная Шагрень (Полимерная покраска)
               </label>
             </div>
           </div>
-
-          <div>
-            <strong>Комплектующие:</strong>
-            <label style={{ display: "block" }}>
-              <input
-                type="checkbox"
-                checked={glassDoor}
-                onChange={(e) => setGlassDoor(e.target.checked)}
-              /> Дверца со стеклом (42 000 ₸)
-            </label>
-            <label style={{ display: "block" }}>
-              <input
-                type="checkbox"
-                checked={skewers}
-                onChange={(e) => setSkewers(e.target.checked)}
-              /> Шампуры (10 000 ₸)
-            </label>
-            <label style={{ display: "block" }}>
-              <input
-                type="checkbox"
-                checked={tools}
-                onChange={(e) => setTools(e.target.checked)}
-              /> Совок / Кочерга (14 000 ₸)
-            </label>
-            <div style={{ marginTop: 8 }}>
-              <strong>Казаны:</strong>
-              {["12", "18", "22", "50", "80"].map((size) => (
-                <label key={size} style={{ display: "block" }}>
-                  <input
-                    type="checkbox"
-                    checked={cauldrons[size]}
-                    onChange={(e) => setCauldrons({ ...cauldrons, [size]: e.target.checked })}
-                  /> Казан {size} л
-                </label>
-              ))}
-            </div>
+        </div>
+        {/* Правая колонка — комплектующие */}
+        <div style={{ flex: 1, minWidth: 300 }}>
+          <strong>Комплектующие:</strong>
+          <label style={{ display: "block" }}>
+            <input
+              type="checkbox"
+              checked={glassDoor}
+              onChange={(e) => setGlassDoor(e.target.checked)}
+            />{" "}
+            Дверца со стеклом (42 000 ₸)
+          </label>
+          <label style={{ display: "block" }}>
+            <input
+              type="checkbox"
+              checked={skewers}
+              onChange={(e) => setSkewers(e.target.checked)}
+            />{" "}
+            Шампуры (10 000 ₸)
+          </label>
+          <label style={{ display: "block" }}>
+            <input
+              type="checkbox"
+              checked={tools}
+              onChange={(e) => setTools(e.target.checked)}
+            />{" "}
+            Совок / Кочерга (14 000 ₸)
+          </label>
+          <div style={{ marginTop: 8 }}>
+            <strong>Казаны:</strong>
+            {["12", "18", "22", "50", "80"].map((size) => (
+              <label key={size} style={{ display: "block" }}>
+                <input
+                  type="checkbox"
+                  checked={cauldrons[size]}
+                  onChange={(e) =>
+                    setCauldrons({ ...cauldrons, [size]: e.target.checked })
+                  }
+                />{" "}
+                Казан {size} л
+              </label>
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* Итог и отчет */}
-        <div style={{ flexBasis: "100%", marginTop: 32, fontSize: 18 }}>
-          <div style={{ fontWeight: "bold", fontSize: 20 }}>
-            Общая длина: {totalLength} мм<br />
-            Общая стоимость: {totalPrice.toLocaleString()} ₸<br />
+      {/* ИТОГ */}
+      <div style={{ flexBasis: "100%", marginTop: 32, fontSize: 18 }}>
+        <div style={{ fontWeight: "bold", fontSize: 20 }}>
+          Общая длина: {totalLength} мм
+          <br />
+          Общая стоимость: {totalPrice.toLocaleString()} ₸
+          <br />
+        </div>
+        {color && (
+          <div>
+            Цвет покрытия: <strong>{color}</strong>
           </div>
-          {color && (
-            <div>
-              Цвет покрытия: <strong>{color}</strong>
-            </div>
-          )}
-          <div style={{ marginTop: 12 }}>
-            <strong>Разбивка стоимости:</strong>
-            <ul style={{ margin: 0, paddingLeft: 20 }}>
-              <li>Модули: {Math.round(basePrice).toLocaleString()} ₸</li>
-            </ul>
-          </div>
+        )}
+
+        <div style={{ marginTop: 12 }}>
+          <strong>Разбивка стоимости:</strong>
+          <ul style={{ margin: 0, paddingLeft: 20 }}>
+            <li>Модули: {Math.round(basePrice).toLocaleString()} ₸</li>
+            {hasApron && apron > 0 && (
+              <li>Фартук: {Math.round(apron).toLocaleString()} ₸</li>
+            )}
+            {hasRoof && roof > 0 && <li>Навес: {roof.toLocaleString()} ₸</li>}
+            {hood > 0 && (
+              <li>Вытяжной зонт: {Math.round(hood).toLocaleString()} ₸</li>
+            )}
+            {accessories.map((a, i) => (
+              <li key={i}>
+                {a.name}: {a.price.toLocaleString()} ₸
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
   );
 }
+
