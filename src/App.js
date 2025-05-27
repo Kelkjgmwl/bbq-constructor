@@ -35,6 +35,7 @@ export default function BBQConstructor() {
   const [scale, setScale] = useState(1);
   const [hasApron, setHasApron] = useState(false);
   const [hasRoof, setHasRoof] = useState(false);
+  const [hasHood, setHasHood] = useState(false); // Новое состояние для Вытяжного зонта
   const [color, setColor] = useState("");
   const [glassDoor, setGlassDoor] = useState(false);
   const [skewers, setSkewers] = useState(false);
@@ -99,7 +100,8 @@ export default function BBQConstructor() {
 
   const basePrice = (totalLength / 1000) * 235000;
   const apron = hasApron ? (totalLength / 1000) * 35000 : 0; // Фартук: 35,000 ₸ за метр
-  const hood = hasRoof ? (totalLength / 1000) * 65000 : 0; // Вытяжной зонт: 65,000 ₸ за метр
+  const roof = hasRoof ? (totalLength / 1000) * 65000 : 0; // Навес: 65,000 ₸ за метр
+  const hood = hasHood ? (totalLength / 1000) * 65000 : 0; // Вытяжной зонт: 65,000 ₸ за метр
 
   const accessories = [
     glassDoor && { name: "Дверца со стеклом", price: 42000 },
@@ -120,7 +122,7 @@ export default function BBQConstructor() {
   ].filter(Boolean);
 
   const accessoriesTotal = accessories.reduce((sum, acc) => sum + acc.price, 0);
-  const totalPrice = Math.round(basePrice + apron + hood + accessoriesTotal);
+  const totalPrice = Math.round(basePrice + apron + roof + hood + accessoriesTotal);
 
   return (
     <div
@@ -261,14 +263,27 @@ export default function BBQConstructor() {
               <span style={{ marginLeft: 8, fontWeight: "bold" }}>Фартук</span>
             </label>
 
-            <label>
-              <input
-                type="checkbox"
-                checked={hasRoof}
-                onChange={(e) => setHasRoof(e.target.checked)}
-              />
-              <span style={{ marginLeft: 8, fontWeight: "bold" }}>Вытяжной зонт</span>
-            </label>
+            <div style={{ marginTop: 8 }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={hasRoof}
+                  onChange={(e) => setHasRoof(e.target.checked)}
+                />
+                <span style={{ marginLeft: 8, fontWeight: "bold" }}>Навес</span>
+              </label>
+            </div>
+
+            <div style={{ marginTop: 8 }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={hasHood}
+                  onChange={(e) => setHasHood(e.target.checked)}
+                />
+                <span style={{ marginLeft: 8, fontWeight: "bold" }}>Вытяжной зонт</span>
+              </label>
+            </div>
 
             {/* Цвет / покрытие */}
             <div style={{ marginTop: 16 }}>
@@ -402,7 +417,8 @@ export default function BBQConstructor() {
             <ul style={{ margin: 0, paddingLeft: 20 }}>
               <li>Модули: {Math.round(basePrice).toLocaleString()} ₸</li>
               {hasApron && apron > 0 && <li>Фартук: {Math.round(apron).toLocaleString()} ₸</li>}
-              {hasRoof && hood > 0 && <li>Вытяжной зонт: {Math.round(hood).toLocaleString()} ₸</li>}
+              {hasRoof && roof > 0 && <li>Навес: {Math.round(roof).toLocaleString()} ₸</li>}
+              {hasHood && hood > 0 && <li>Вытяжной зонт: {Math.round(hood).toLocaleString()} ₸</li>}
               {accessories.map((a, i) => (
                 <li key={i}>{a.name}: {a.price.toLocaleString()} ₸</li>
               ))}
