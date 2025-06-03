@@ -98,7 +98,7 @@ export default function BBQConstructor() {
     Прочее: modules.filter((m) => m.id.includes("gas") || m.id.includes("sink")),
   };
 
-  const basePrice = (totalLength / 1000) * 265000;
+  const basePrice = (totalLength / 1000) * 285000;
   const apron = hasApron ? (totalLength / 1000) * 35000 : 0; // Фартук: 35,000 ₸ за метр
   const roof = hasRoof ? (totalLength / 1000) * 65000 : 0; // Навес: 65,000 ₸ за метр
   const hood = hasHood ? (totalLength / 1000) * 90000 : 0; // Вытяжной зонт: 65,000 ₸ за метр
