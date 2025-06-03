@@ -98,13 +98,13 @@ export default function BBQConstructor() {
     Прочее: modules.filter((m) => m.id.includes("gas") || m.id.includes("sink")),
   };
 
-  const basePrice = (totalLength / 1000) * 235000;
+  const basePrice = (totalLength / 1000) * 265000;
   const apron = hasApron ? (totalLength / 1000) * 35000 : 0; // Фартук: 35,000 ₸ за метр
   const roof = hasRoof ? (totalLength / 1000) * 65000 : 0; // Навес: 65,000 ₸ за метр
-  const hood = hasHood ? (totalLength / 1000) * 65000 : 0; // Вытяжной зонт: 65,000 ₸ за метр
+  const hood = hasHood ? (totalLength / 1000) * 90000 : 0; // Вытяжной зонт: 65,000 ₸ за метр
 
   const accessories = [
-    glassDoor && { name: "Дверца со стеклом", price: 42000 },
+    glassDoor && { name: "Дверца со стеклом", price: 50000 },
     skewers && { name: "Шампуры", price: 10000 },
     tools && { name: "Совок/Кочерга", price: 14000 },
     ...Object.entries(cauldrons)
